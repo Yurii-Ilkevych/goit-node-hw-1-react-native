@@ -25,6 +25,7 @@ export default RegistrationScreenn = () => {
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
       style={styles.container}
+      keyboardVerticalOffset={-187}
     >
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <View style={styles.innerContainer}>
@@ -121,11 +122,11 @@ const styles = StyleSheet.create({
     justifyContent: "flex-end",
   },
   boxAuth: {
-    flex: 0.65,
     backgroundColor: "#FFFFFF",
     borderTopRightRadius: 25,
     borderTopLeftRadius: 25,
     paddingHorizontal: 16,
+    paddingBottom: 34,
   },
   fotoBox: {
     width: 120,
@@ -198,7 +199,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#FFFFFF",
   },
   signInBtn: {
-    marginBottom: 32,
+    marginBottom: 45,
   },
   signInText: {
     fontFamily: "Roboto-Regular",
