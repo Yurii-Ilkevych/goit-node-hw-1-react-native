@@ -21,6 +21,17 @@ export default RegistrationScreenn = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
+  const onRegister = () => {
+    console.log({
+      login: login,
+      email: email,
+      password: password,
+    });
+    setlogin("");
+    setEmail("");
+    setPassword("");
+  };
+
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -48,7 +59,7 @@ export default RegistrationScreenn = () => {
                 }}
                 autoCapitalize="none"
                 value={login}
-                onChange={() => setlogin()}
+                onChangeText={setlogin}
                 placeholder="Логін"
                 style={[
                   styles.commonInput,
@@ -62,9 +73,10 @@ export default RegistrationScreenn = () => {
                 onBlur={() => {
                   setIsFocusInputEmail(false);
                 }}
+                autoComplete="email"
                 autoCapitalize="none"
                 value={email}
-                onChange={() => setEmail()}
+                onChangeText={setEmail}
                 placeholder="Адреса електронної пошти"
                 style={[
                   styles.commonInput,
@@ -80,9 +92,10 @@ export default RegistrationScreenn = () => {
                     setIsFocusInputPassword(false);
                   }}
                   secureTextEntry={isShowPassword}
+                  autoComplete="password"
                   autoCapitalize="none"
                   value={password}
-                  onChange={() => setPassword()}
+                  onChangeText={setPassword}
                   placeholder="Пароль"
                   style={[
                     styles.commonInput,
@@ -98,7 +111,7 @@ export default RegistrationScreenn = () => {
                 </TouchableOpacity>
               </View>
             </View>
-            <TouchableOpacity style={styles.btnRegister}>
+            <TouchableOpacity style={styles.btnRegister} onPress={onRegister}>
               <Text style={styles.btnRegisterText}>Зареєстуватися</Text>
             </TouchableOpacity>
 

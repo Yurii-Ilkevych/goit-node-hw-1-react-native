@@ -10,7 +10,7 @@ import {
   TextInput,
 } from "react-native";
 import { useState } from "react";
-import imageBg from "../assets/Photo_BG-min.jpg";
+
 
 export default RegistrationScreen = () => {
   const [isFocusInputEmail, setIsFocusInputEmail] = useState(false);
@@ -18,6 +18,16 @@ export default RegistrationScreen = () => {
   const [isShowPassword, setIsShowPassword] = useState(true);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+
+
+  const onLogin =()=>{
+  console.log({
+    email: email,
+    password: password
+  })
+  setEmail("")
+  setPassword("")
+  }  
 
   return (
     <KeyboardAvoidingView
@@ -38,9 +48,10 @@ export default RegistrationScreen = () => {
                 onBlur={() => {
                   setIsFocusInputEmail(false);
                 }}
+                autoComplete="email"
                 autoCapitalize="none"
                 value={email}
-                onChange={() => setEmail()}
+                onChangeText={setEmail}
                 placeholder="Адреса електронної пошти"
                 style={[
                   styles.commonInput,
@@ -58,8 +69,9 @@ export default RegistrationScreen = () => {
                   secureTextEntry={isShowPassword}
                   autoCapitalize="none"
                   value={password}
-                  onChange={() => setPassword()}
+                  onChangeText={setPassword}
                   placeholder="Пароль"
+                  autoComplete="password"
                   style={[
                     styles.commonInput,
                     isFocusInputPassword && styles.isFocus,
@@ -74,7 +86,7 @@ export default RegistrationScreen = () => {
                 </TouchableOpacity>
               </View>
             </View>
-            <TouchableOpacity style={styles.btnLogin}>
+            <TouchableOpacity style={styles.btnLogin} onPress={onLogin}>
               <Text style={styles.btnLoginText}>Увійти</Text>
             </TouchableOpacity>
 
