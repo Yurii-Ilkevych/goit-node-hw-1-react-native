@@ -10,95 +10,104 @@ import {
   TextInput,
 } from "react-native";
 import { useState } from "react";
+import { useNavigation } from "@react-navigation/native";
+import SharedLayout from "./SharedLayout";
 
-
-export default RegistrationScreen = () => {
+export default LoginScreen = () => {
   const [isFocusInputEmail, setIsFocusInputEmail] = useState(false);
   const [isFocusInputPassword, setIsFocusInputPassword] = useState(false);
   const [isShowPassword, setIsShowPassword] = useState(true);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const navigation = useNavigation();
 
-
-  const onLogin =()=>{
-  console.log({
-    email: email,
-    password: password
-  })
-  setEmail("")
-  setPassword("")
-  }  
+  const onLogin = () => {
+    console.log({
+      email: email,
+      password: password,
+    });
+    setEmail("");
+    setPassword("");
+    navigation.navigate("Home");
+  };
 
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-      style={styles.container}
-      keyboardVerticalOffset={-242}
-    >
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-        <View style={styles.innerContainer}>
-          <View style={styles.boxAuth}>
-            <Text style={styles.loginText}>Увійти</Text>
+    <SharedLayout>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        style={styles.container}
+        keyboardVerticalOffset={-242}
+      >
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+          <View style={styles.innerContainer}>
+            <View style={styles.boxAuth}>
+              <Text style={styles.loginText}>Увійти</Text>
 
-            <View style={styles.boxInput}>
-              <TextInput
-                onFocus={() => {
-                  setIsFocusInputEmail(true);
-                }}
-                onBlur={() => {
-                  setIsFocusInputEmail(false);
-                }}
-                autoComplete="email"
-                autoCapitalize="none"
-                value={email}
-                onChangeText={setEmail}
-                placeholder="Адреса електронної пошти"
-                style={[
-                  styles.commonInput,
-                  isFocusInputEmail && styles.isFocus,
-                ]}
-              ></TextInput>
-              <View style={styles.wrapperPasswordInput}>
+              <View style={styles.boxInput}>
                 <TextInput
                   onFocus={() => {
-                    setIsFocusInputPassword(true);
+                    setIsFocusInputEmail(true);
                   }}
                   onBlur={() => {
-                    setIsFocusInputPassword(false);
+                    setIsFocusInputEmail(false);
                   }}
-                  secureTextEntry={isShowPassword}
+                  autoComplete="email"
                   autoCapitalize="none"
-                  value={password}
-                  onChangeText={setPassword}
-                  placeholder="Пароль"
-                  autoComplete="password"
+                  value={email}
+                  onChangeText={setEmail}
+                  placeholder="Адреса електронної пошти"
                   style={[
                     styles.commonInput,
-                    isFocusInputPassword && styles.isFocus,
+                    isFocusInputEmail && styles.isFocus,
                   ]}
                 ></TextInput>
-                <TouchableOpacity
-                  onPress={() => setIsShowPassword((prev) => !prev)}
-                >
-                  <Text style={styles.btnShowPasswordText}>
-                    {isShowPassword ? "Показати" : "Приховати"}
-                  </Text>
-                </TouchableOpacity>
+                <View style={styles.wrapperPasswordInput}>
+                  <TextInput
+                    onFocus={() => {
+                      setIsFocusInputPassword(true);
+                    }}
+                    onBlur={() => {
+                      setIsFocusInputPassword(false);
+                    }}
+                    secureTextEntry={isShowPassword}
+                    autoCapitalize="none"
+                    value={password}
+                    onChangeText={setPassword}
+                    placeholder="Пароль"
+                    autoComplete="password"
+                    style={[
+                      styles.commonInput,
+                      isFocusInputPassword && styles.isFocus,
+                    ]}
+                  ></TextInput>
+                  <TouchableOpacity
+                    onPress={() => setIsShowPassword((prev) => !prev)}
+                  >
+                    <Text style={styles.btnShowPasswordText}>
+                      {isShowPassword ? "Показати" : "Приховати"}
+                    </Text>
+                  </TouchableOpacity>
+                </View>
               </View>
-            </View>
-            <TouchableOpacity style={styles.btnLogin} onPress={onLogin}>
-              <Text style={styles.btnLoginText}>Увійти</Text>
-            </TouchableOpacity>
+              <TouchableOpacity style={styles.btnLogin} onPress={onLogin}>
+                <Text style={styles.btnLoginText}>Увійти</Text>
+              </TouchableOpacity>
 
-            <TouchableOpacity style={styles.signInBtn}>
-              <Text style={styles.signInText}>
-                Немає акаунту? Зареєструватися
-              </Text>
-            </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.signInBtn}
+                onPress={() => {
+                  navigation.navigate("RegistrationScreen");
+                }}
+              >
+                <Text style={styles.signInText}>
+                  Немає акаунту? Зареєструватися
+                </Text>
+              </TouchableOpacity>
+            </View>
           </View>
-        </View>
-      </TouchableWithoutFeedback>
-    </KeyboardAvoidingView>
+        </TouchableWithoutFeedback>
+      </KeyboardAvoidingView>
+    </SharedLayout>
   );
 };
 
@@ -108,7 +117,6 @@ const styles = StyleSheet.create({
   },
   innerContainer: {
     flex: 1,
-    flexDirection: "column",
     justifyContent: "flex-end",
   },
   boxAuth: {
