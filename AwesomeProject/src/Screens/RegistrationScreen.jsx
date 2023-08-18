@@ -33,7 +33,7 @@ export default RegistrationScreen = () => {
     setlogin("");
     setEmail("");
     setPassword("");
-    navigation.navigate("Home");
+    navigation.navigate("BottomNavigator");
   };
 
   return (

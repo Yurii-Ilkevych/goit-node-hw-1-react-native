@@ -46,23 +46,21 @@ export default CreatePostsScreen = () => {
           </Text>
           <TextInput
             placeholder="Назва..."
-            style={[styles.input, styles.commoText]}
+            style={[styles.input, styles.commoText, styles.colorInput]}
           ></TextInput>
           <View style={styles.containerLocalIcon}>
-            {localText.length === 0 && (
+            
               <View style={styles.boxLocalIcon}>
                 <SimpleLineIcons
                   name="location-pin"
                   size={24}
                   color="#BDBDBD"
                 />
-                <Text style={[styles.commoText, styles.inputPlaceholder]}>
-                  Місцевість...
-                </Text>
               </View>
-            )}
+
             <TextInput
-              style={[styles.input, styles.inputLocation, styles.commoText]}
+            placeholder="Місцевість..."
+              style={[styles.input, styles.inputLocation, styles.commoText, styles.colorInput]}
               value={localText}
               onChangeText={setlocalText}
             ></TextInput>
@@ -147,9 +145,13 @@ const styles = StyleSheet.create({
     lineHeight: 18.75,
     color: "#BDBDBD",
   },
+  colorInput:{
+    color: "#212121"
+  },
   inputLocation: {
     marginTop: 16,
     marginBottom: 32,
+    paddingLeft: 28,
   },
   containerLocalIcon: {
     position: "relative",
