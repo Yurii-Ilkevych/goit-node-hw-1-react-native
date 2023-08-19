@@ -4,6 +4,10 @@ import PostsScreen from "../Screens/PostsScreen";
 import CreatePostsScreen from "../Screens/CreatePostsScreen";
 import ProfileScreen from "../Screens/ProfileScreen";
 import { Ionicons, AntDesign, Feather } from "@expo/vector-icons";
+import HeaderTextCreatePostsScreen from "../components/HeaderTextCreatePostsScreen";
+import HeaderBtnBackCreatePostsScreen from "../components/HeaderBtnBackCreatePostsScreen";
+import HeaderTextPostsScreen from "../components/HeaderTextPostsScreen";
+import HeaderBtnLogoutPostsScreen from "../components/HeaderBtnLogoutPostsScreen";
 const Tab = createBottomTabNavigator();
 
 export default BottomNavigator = () => {
@@ -32,21 +36,34 @@ export default BottomNavigator = () => {
             );
           }
         },
-        tabBarStyle: { paddingHorizontal: 82, paddingTop: 9 },
+        tabBarStyle: {
+          paddingHorizontal: 82,
+          paddingTop: 9,
+          borderTopWidth: 0.5,
+          borderColor: "#0000004D",
+        },
         tabBarActiveTintColor: "#FFFFFF",
         tabBarInactiveTintColor: "#212121CC",
         tabBarShowLabel: false,
+        headerStyle: { borderBottomWidth: 0.5, borderColor: "#0000004D"},
       })}
     >
       <Tab.Screen
         name="PostsScreen"
         component={PostsScreen}
-        options={{ headerShown: false }}
+        options={{
+          headerTitle: () => <HeaderTextPostsScreen />,
+          headerRight: () => <HeaderBtnLogoutPostsScreen />,
+        }}
       />
       <Tab.Screen
         name="CreatePostsScreen"
         component={CreatePostsScreen}
-        options={{ headerShown: false, tabBarStyle: { display: "none" } }}
+        options={{
+          headerTitle: () => <HeaderTextCreatePostsScreen />,
+          headerLeft: () => <HeaderBtnBackCreatePostsScreen />,
+          tabBarStyle: { display: "none" },
+        }}
       />
       <Tab.Screen
         name="ProfileScreen"
@@ -67,5 +84,5 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     justifyContent: "center",
     alignItems: "center",
-  }
+  },
 });

@@ -6,7 +6,7 @@ import {
   TouchableOpacity,
   FlatList,
 } from "react-native";
-import SharedLayout from "./SharedLayout";
+import SharedLayout from "../components/SharedLayout";
 import {
   AntDesign,
   MaterialIcons,

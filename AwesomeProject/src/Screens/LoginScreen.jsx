@@ -11,7 +11,7 @@ import {
 } from "react-native";
 import { useState } from "react";
 import { useNavigation } from "@react-navigation/native";
-import SharedLayout from "./SharedLayout";
+import SharedLayout from "../components/SharedLayout";
 
 export default LoginScreen = () => {
   const [isFocusInputEmail, setIsFocusInputEmail] = useState(false);

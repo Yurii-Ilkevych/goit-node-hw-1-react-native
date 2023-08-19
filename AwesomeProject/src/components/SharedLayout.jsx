@@ -2,7 +2,6 @@ import { StyleSheet, View, ImageBackground } from "react-native";
 import image from "../../src/assets/Photo_BG-min.jpg";
 
 export default SharedLayout = ({ children, route }) => {
-  console.log(route);
   return (
     <View style={styles.container}>
       <ImageBackground source={image} style={styles.bgImage}>

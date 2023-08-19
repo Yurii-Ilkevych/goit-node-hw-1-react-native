@@ -6,35 +6,16 @@ import {
   TouchableOpacity,
   TextInput,
 } from "react-native";
-import { useNavigation } from "@react-navigation/native";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { AntDesign, SimpleLineIcons, FontAwesome } from "@expo/vector-icons";
 import { useState } from "react";
 
 export default CreatePostsScreen = () => {
-  const navigation = useNavigation();
   const [localText, setlocalText] = useState("");
+  const [tittleName, setTittleName] = useState("");
 
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.ineerContainer}>
-        <View style={styles.headerBox}>
-          <View style={styles.headerContainer}>
-            <Text style={styles.mainTextAdditional}>Створити публікацію</Text>
-            <TouchableOpacity
-              style={styles.iconBtn}
-              onPress={() => {
-                navigation.goBack();
-              }}
-            >
-              <MaterialCommunityIcons
-                name="keyboard-backspace"
-                size={24}
-                color="#212121CC"
-              />
-            </TouchableOpacity>
-          </View>
-        </View>
         <View style={styles.mainContainer}>
           <View style={styles.fotobox}>
             <TouchableOpacity style={styles.cameraBox}>
@@ -47,20 +28,22 @@ export default CreatePostsScreen = () => {
           <TextInput
             placeholder="Назва..."
             style={[styles.input, styles.commoText, styles.colorInput]}
+            value={tittleName}
+            onChangeText={setTittleName}
           ></TextInput>
           <View style={styles.containerLocalIcon}>
-            
-              <View style={styles.boxLocalIcon}>
-                <SimpleLineIcons
-                  name="location-pin"
-                  size={24}
-                  color="#BDBDBD"
-                />
-              </View>
+            <View style={styles.boxLocalIcon}>
+              <SimpleLineIcons name="location-pin" size={24} color="#BDBDBD" />
+            </View>
 
             <TextInput
-            placeholder="Місцевість..."
-              style={[styles.input, styles.inputLocation, styles.commoText, styles.colorInput]}
+              placeholder="Місцевість..."
+              style={[
+                styles.input,
+                styles.inputLocation,
+                styles.commoText,
+                styles.colorInput,
+              ]}
               value={localText}
               onChangeText={setlocalText}
             ></TextInput>
@@ -83,31 +66,10 @@ export default CreatePostsScreen = () => {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#FFFFFF" },
-  headerContainer: {
-    borderBottomWidth: 0.5,
-    borderColor: "#0000004D",
-    justifyContent: "center",
-    alignItems: "center",
-  },
   ineerContainer: {
     position: "relative",
     flex: 1,
-  },
-  headerBox: {
-    position: "relative",
-    justifyContent: "center",
-  },
-  iconBtn: {
-    position: "absolute",
-    left: 16,
-    bottom: 10,
-  },
-  mainTextAdditional: {
-    fontFamily: "Roboto-Medium",
-    fontSize: 17,
-    lineHeight: 22,
-    paddingVertical: 11,
-    color: "#212121",
+    marginTop: 32,
   },
   mainContainer: {
     paddingHorizontal: 16,
@@ -116,7 +78,6 @@ const styles = StyleSheet.create({
     height: 240,
     backgroundColor: "#E8E8E8",
     borderRadius: 8,
-    marginTop: 32,
     justifyContent: "center",
     alignItems: "center",
   },
@@ -145,8 +106,8 @@ const styles = StyleSheet.create({
     lineHeight: 18.75,
     color: "#BDBDBD",
   },
-  colorInput:{
-    color: "#212121"
+  colorInput: {
+    color: "#212121",
   },
   inputLocation: {
     marginTop: 16,
