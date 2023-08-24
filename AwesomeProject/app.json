@@ -15,13 +15,22 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.company.myawesomeproject",
+      "config": {
+        "googleMapsApiKey": "AIzaSyB63PkRUMLBJUvaOihqucYTWNHo2NRq3wE"
+      }
     },
     "android":{
-  
+  "package" : "com.company.myawesomeproject",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
+      },
+      "config": {
+        "googleMaps": {
+          "apiKey": "AIzaSyB63PkRUMLBJUvaOihqucYTWNHo2NRq3wE"
+        }
       },
       "softwareKeyboardLayoutMode": "pan"
     },

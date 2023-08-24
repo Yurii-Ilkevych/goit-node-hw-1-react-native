@@ -4,8 +4,8 @@ import PostsScreen from "../Screens/PostsScreen";
 import CreatePostsScreen from "../Screens/CreatePostsScreen";
 import ProfileScreen from "../Screens/ProfileScreen";
 import { Ionicons, AntDesign, Feather } from "@expo/vector-icons";
-import HeaderTextCreatePostsScreen from "../components/HeaderTextCreatePostsScreen";
-import HeaderBtnBackCreatePostsScreen from "../components/HeaderBtnBackCreatePostsScreen";
+import HeaderText from "../components/HeaderText";
+import HeaderBtnBack from "../components/HeaderBtnBack";
 import HeaderTextPostsScreen from "../components/HeaderTextPostsScreen";
 import HeaderBtnLogoutPostsScreen from "../components/HeaderBtnLogoutPostsScreen";
 const Tab = createBottomTabNavigator();
@@ -46,6 +46,8 @@ export default BottomNavigator = () => {
         tabBarInactiveTintColor: "#212121CC",
         tabBarShowLabel: false,
         headerStyle: { borderBottomWidth: 0.5, borderColor: "#0000004D"},
+        headerTitleAlign: "center",
+        unmountOnBlur:true
       })}
     >
       <Tab.Screen
@@ -60,10 +62,12 @@ export default BottomNavigator = () => {
         name="CreatePostsScreen"
         component={CreatePostsScreen}
         options={{
-          headerTitle: () => <HeaderTextCreatePostsScreen />,
-          headerLeft: () => <HeaderBtnBackCreatePostsScreen />,
+          headerTitle: () => <HeaderText Tittle={"Створити публікацію"}/>,
+          headerLeft: () => <HeaderBtnBack />,
           tabBarStyle: { display: "none" },
+          
         }}
+        
       />
       <Tab.Screen
         name="ProfileScreen"

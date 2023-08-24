@@ -70,7 +70,7 @@ export default ProfileScreen = () => {
                   <Text style={styles.tittlePublished}>{item.title}</Text>
                   <View style={styles.socialBox}>
                     <View style={styles.socialBoxStart}>
-                      <TouchableOpacity>
+                      <TouchableOpacity onPress={()=>{navigation.navigate("CommentsScreen");}}>
                         <FontAwesome name="comment" size={24} color="#FF6C00" />
                       </TouchableOpacity>
                       <Text style={styles.counter}>{item.commentLength}</Text>
@@ -79,14 +79,14 @@ export default ProfileScreen = () => {
                       </TouchableOpacity>
                       <Text style={styles.counter}>{item.likes}</Text>
                     </View>
-                    <View style={styles.socialBoxEnd}>
+                      <TouchableOpacity style={styles.socialBoxEnd}>
                       <SimpleLineIcons
                         name="location-pin"
                         size={24}
                         color="#BDBDBD"
                       />
                       <Text style={styles.locationText}>{item.location}</Text>
-                    </View>
+                      </TouchableOpacity>
                   </View>
                 </View>
               )}
@@ -200,125 +200,4 @@ const styles = StyleSheet.create({
   },
 });
 
-{
-  /* <ScrollView contentContainerStyle={styles.scrollViewContent}>
-          <View style={styles.innerContainer}>
-            <View style={styles.profileBox}>
-              <View style={styles.fotoBox}>
-                <TouchableOpacity style={styles.addBtn}>
-                  <AntDesign
-                    name="pluscircleo"
-                    style={styles.addSvg}
-                    size={25}
-                  />
-                </TouchableOpacity>
-              </View>
-              <TouchableOpacity
-                style={styles.iconBtn}
-                onPress={() => {
-                  navigation.navigate("LoginScreen");
-                }}
-              >
-                <MaterialIcons name="logout" size={24} color="#BDBDBD" />
-              </TouchableOpacity>
-              <Text style={styles.userText}>Natali Romanova</Text>
-              <View style={styles.publishedContainer}>
-                <View style={styles.publishedBox}></View>
-                <Text style={styles.tittlePublished}>Tittle</Text>
-                <View style={styles.socialBox}>
-                  <View style={styles.socialBoxStart}>
-                    <TouchableOpacity>
-                      <FontAwesome name="comment" size={24} color="#FF6C00" />
-                    </TouchableOpacity>
-                    <Text style={styles.counter}>0</Text>
-                    <TouchableOpacity style={styles.icon}>
-                      <AntDesign name="like2" size={24} color="#FF6C00" />
-                    </TouchableOpacity>
-                    <Text style={styles.counter}>0</Text>
-                  </View>
-                  <View style={styles.socialBoxEnd}>
-                    <SimpleLineIcons
-                      name="location-pin"
-                      size={24}
-                      color="#BDBDBD"
-                    />
-                    <Text style={styles.locationText}>Location</Text>
-                  </View>
-                </View>
-              </View>
-              <View style={styles.publishedContainer}>
-                <View style={styles.publishedBox}></View>
-                <Text style={styles.tittlePublished}>Tittle</Text>
-                <View style={styles.socialBox}>
-                  <View style={styles.socialBoxStart}>
-                    <TouchableOpacity>
-                      <FontAwesome name="comment" size={24} color="#FF6C00" />
-                    </TouchableOpacity>
-                    <Text style={styles.counter}>0</Text>
-                    <TouchableOpacity style={styles.icon}>
-                      <AntDesign name="like2" size={24} color="#FF6C00" />
-                    </TouchableOpacity>
-                    <Text style={styles.counter}>0</Text>
-                  </View>
-                  <View style={styles.socialBoxEnd}>
-                    <SimpleLineIcons
-                      name="location-pin"
-                      size={24}
-                      color="#BDBDBD"
-                    />
-                    <Text style={styles.locationText}>Location</Text>
-                  </View>
-                </View>
-              </View>
-              <View style={styles.publishedContainer}>
-                <View style={styles.publishedBox}></View>
-                <Text style={styles.tittlePublished}>Tittle</Text>
-                <View style={styles.socialBox}>
-                  <View style={styles.socialBoxStart}>
-                    <TouchableOpacity>
-                      <FontAwesome name="comment" size={24} color="#FF6C00" />
-                    </TouchableOpacity>
-                    <Text style={styles.counter}>0</Text>
-                    <TouchableOpacity style={styles.icon}>
-                      <AntDesign name="like2" size={24} color="#FF6C00" />
-                    </TouchableOpacity>
-                    <Text style={styles.counter}>0</Text>
-                  </View>
-                  <View style={styles.socialBoxEnd}>
-                    <SimpleLineIcons
-                      name="location-pin"
-                      size={24}
-                      color="#BDBDBD"
-                    />
-                    <Text style={styles.locationText}>Location</Text>
-                  </View>
-                </View>
-              </View>
-              <View style={styles.publishedContainer}>
-                <View style={styles.publishedBox}></View>
-                <Text style={styles.tittlePublished}>Tittle</Text>
-                <View style={styles.socialBox}>
-                  <View style={styles.socialBoxStart}>
-                    <TouchableOpacity>
-                      <FontAwesome name="comment" size={24} color="#FF6C00" />
-                    </TouchableOpacity>
-                    <Text style={styles.counter}>0</Text>
-                    <TouchableOpacity style={styles.icon}>
-                      <AntDesign name="like2" size={24} color="#FF6C00" />
-                    </TouchableOpacity>
-                    <Text style={styles.counter}>0</Text>
-                  </View>
-                  <View style={styles.socialBoxEnd}>
-                    <SimpleLineIcons
-                      name="location-pin"
-                      size={24}
-                      color="#BDBDBD"
-                    />
-                    <Text style={styles.locationText}>Location</Text>
-                  </View>
-                </View>
-              </View>
-            </View>
-          </View>
-        </ScrollView> */
-}
+  

@@ -45,6 +45,7 @@ export default RegistrationScreen = () => {
       >
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
           <View style={styles.innerContainer}>
+
             <View style={styles.boxAuth}>
               <View style={styles.fotoBox}>
                 <TouchableOpacity style={styles.addBtn}>
@@ -133,6 +134,7 @@ export default RegistrationScreen = () => {
                 <Text style={styles.signInText}>Вже є акаунт? Увійти</Text>
               </TouchableOpacity>
             </View>
+            
           </View>
         </TouchableWithoutFeedback>
       </KeyboardAvoidingView>

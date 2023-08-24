@@ -1,9 +1,9 @@
 import { View, Text, StyleSheet } from "react-native";
 
-export default HeaderTextCreatePostsScreen = () => {
+export default HeaderText = ({Tittle}) => {
   return (
       <View>
-        <Text style={styles.mainTextAdditional}>Створити публікацію</Text>
+        <Text style={styles.mainTextAdditional}>{Tittle}</Text>
       </View>
   );
 };
@@ -17,3 +17,4 @@ const styles = StyleSheet.create({
     color: "#212121",
   },
 });
+ 

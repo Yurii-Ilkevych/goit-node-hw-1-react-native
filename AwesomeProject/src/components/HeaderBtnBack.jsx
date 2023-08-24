@@ -2,7 +2,7 @@ import { TouchableOpacity, StyleSheet } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 
-export default HeaderBtnBackCreatePostsScreen = () => {
+export default HeaderBtnBack = () => {
   const navigation = useNavigation();
   return (
     <TouchableOpacity
