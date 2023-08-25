@@ -2,7 +2,7 @@ import { TouchableOpacity, StyleSheet } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 
-export default HeaderBtnLogoutPostsScreen = () => {
+export default HeaderBtnLogoutPosts = () => {
   const navigation = useNavigation();
   return (
     <TouchableOpacity

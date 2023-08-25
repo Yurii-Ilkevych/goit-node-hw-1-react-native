@@ -10,6 +10,7 @@ import {
   Keyboard,
   ImageBackground,
 } from "react-native";
+import Spinner from "react-native-loading-spinner-overlay";
 import { AntDesign, SimpleLineIcons, FontAwesome } from "@expo/vector-icons";
 import { useState, useEffect, useRef } from "react";
 import * as Location from "expo-location";
@@ -24,50 +25,73 @@ export default CreatePostsScreen = () => {
   const [newPhoto, setNewPhoto] = useState(null);
   const [isCameraReady, setIsCameraReady] = useState(false);
   const [pandingPablish, setPandingPablish] = useState(false);
+  const [pandingTakePhoto, setPendingTakePhoto] = useState(false);
   const cameraRef = useRef(null);
-  const navigation = useNavigation()
+  const navigation = useNavigation();
 
   hundleCreatePost = async () => {
     setPandingPablish(true);
-    let { status } = await Location.requestForegroundPermissionsAsync();
-    if (status !== "granted") {
-      console.log("Permission to access location was denied");
+    try {
+      let { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== "granted") {
+        console.log("Permission to access location was denied");
+      }
+      let location = await Location.getCurrentPositionAsync({});
+      let address = await Location.reverseGeocodeAsync(location.coords);
+
+      const coords = {
+        latitude: location.coords.latitude,
+        longitude: location.coords.longitude,
+      };
+
+      //console.log(coords, newPhoto);
+      //console.log(address)
+      navigation.navigate("PostsScreen", {
+        newPhoto,
+        coords,
+        address,
+        localText,
+        tittleName,
+      });
+      hundleAllDelete();
+      setPandingPablish(false);
+    } catch (error) {
+      console.log(error);
     }
-    let location = await Location.getCurrentPositionAsync({});
-    let address = await Location.reverseGeocodeAsync(location.coords)
-
-
-    const coords = {
-      latitude: location.coords.latitude,
-      longitude: location.coords.longitude,
-    };
-
-     //console.log(coords, newPhoto);
-     //console.log(address)
-    navigation.navigate("PostsScreen", {newPhoto, coords, address,localText, tittleName})
-    hundleAllDelete();
-    setPandingPablish(false);
   };
 
   hundleTakePhoto = async () => {
+    setPendingTakePhoto(true);
     if (!hasPermission) {
-      let { status } = await Camera.requestCameraPermissionsAsync();
-      setHasPermission(status === "granted");
+      try {
+        let { status } = await Camera.requestCameraPermissionsAsync();
+        setHasPermission(status === "granted");
+      } catch (error) {
+        console.log(error);
+      }
     }
     if (isCameraReady) {
-      const photo = await cameraRef.current.takePictureAsync({ quality: 1 });
-      setNewPhoto(photo);
-      console.log(photo);
+      try {
+        const photo = await cameraRef.current.takePictureAsync({ quality: 1 });
+        setNewPhoto(photo);
+      } catch (error) {
+        console.log(error);
+      }
     }
+    setPendingTakePhoto(false);
   };
 
   useEffect(() => {
     (async () => {
-      const { status } = await Camera.requestCameraPermissionsAsync();
-      setHasPermission(status === "granted");
+      try {
+        const { status } = await Camera.requestCameraPermissionsAsync();
+        setHasPermission(status === "granted");
+      } catch (error) {
+        console.log(error);
+      }
     })();
   }, []);
-  
+
   const handleCameraReady = () => {
     setIsCameraReady(true);
   };
@@ -77,7 +101,7 @@ export default CreatePostsScreen = () => {
     setTittleName("");
     setNewPhoto(null);
   };
-
+  console.log(newPhoto !== null)
   return (
     <SafeAreaView style={styles.container}>
       <KeyboardAvoidingView
@@ -100,29 +124,29 @@ export default CreatePostsScreen = () => {
                     ref={cameraRef}
                   >
                     <TouchableOpacity
-                      disabled={newPhoto}
+                      disabled={newPhoto || !isCameraReady}
                       style={[
                         styles.cameraBtn,
-                        hasPermission
-                          ? styles.cameraBtnActiv
-                          : styles.cameraBtnDeactiv,
+                        newPhoto === null
+                          ?  styles.cameraBtnDeactiv : styles.cameraBtnActiv
                       ]}
                       onPress={hundleTakePhoto}
                     >
                       <FontAwesome
                         name="camera"
                         size={24}
-                        color={hasPermission ? "#FFFFFF" : "#BDBDBD"}
+                        color={ newPhoto === null ?  "#BDBDBD": "#FFFFFF"}
                       />
                     </TouchableOpacity>
+                    <Spinner visible={pandingTakePhoto} />
                   </Camera>
                 ) : (
                   <ImageBackground style={styles.image} source={newPhoto}>
                     <TouchableOpacity
                       disabled={newPhoto}
-                      style={[styles.cameraBtn, styles.cameraBtnDeactiv]}
+                      style={[styles.cameraBtn, styles.cameraBtnActiv]}
                     >
-                      <FontAwesome name="camera" size={24} color={"#BDBDBD"} />
+                      <FontAwesome name="camera" size={24} color={"#FFFFFF"} />
                     </TouchableOpacity>
                   </ImageBackground>
                 )}
@@ -159,10 +183,16 @@ export default CreatePostsScreen = () => {
                   ></TextInput>
                 </View>
                 <TouchableOpacity
-                  disabled={localText.length === 0 || tittleName.length === 0 || newPhoto === null}
+                  disabled={
+                    localText.length === 0 ||
+                    tittleName.length === 0 ||
+                    newPhoto === null
+                  }
                   style={[
                     styles.btnPublish,
-                    localText.length === 0 || tittleName.length === 0 || newPhoto === null
+                    localText.length === 0 ||
+                    tittleName.length === 0 ||
+                    newPhoto === null
                       ? styles.btnPublishDeactive
                       : styles.btnPublishActive,
                   ]}
@@ -171,7 +201,9 @@ export default CreatePostsScreen = () => {
                   <Text
                     style={[
                       styles.btnPublishText,
-                      localText.length === 0 || tittleName.length === 0 || newPhoto === null
+                      localText.length === 0 ||
+                      tittleName.length === 0 ||
+                      newPhoto === null
                         ? styles.btnPublishTextDeactive
                         : styles.btnPublishTextActive,
                     ]}
@@ -189,14 +221,14 @@ export default CreatePostsScreen = () => {
                     : styles.btnPublishDeactive,
                 ]}
                 disabled={
-                  (localText.length < 1) & (tittleName.length < 1) & !newPhoto
+                  localText.length < 1 && tittleName.length < 1 && !newPhoto
                 }
               >
                 <AntDesign
                   name="delete"
                   size={24}
                   color={
-                    (localText.length < 1) & (tittleName.length < 1) & !newPhoto
+                    localText.length < 1 && tittleName.length < 1 && !newPhoto
                       ? "#BDBDBD"
                       : "#FFFFFF"
                   }
@@ -204,8 +236,11 @@ export default CreatePostsScreen = () => {
               </TouchableOpacity>
             </View>
           ) : (
+           
             <View style={styles.saveBox}>
-              <Text style={styles.saveText}>Публікую...</Text>
+              <Spinner visible={pandingPablish} 
+              textContent="Публікую..."
+              />
             </View>
           )}
         </TouchableWithoutFeedback>
@@ -253,7 +288,6 @@ const styles = StyleSheet.create({
     width: 60,
     height: 60,
     borderRadius: 100,
-    backgroundColor: "#FFFFFF",
     justifyContent: "center",
     alignItems: "center",
   },

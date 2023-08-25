@@ -16,20 +16,20 @@
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.company.myapp",
+      "bundleIdentifier": "com.company.myawesomeproject",
       "config": {
-        "googleMapsApiKey": "AIzaSyDgvnfgTyu6EJ4uI65P_W9Bi8vvuUrIZGw"
+        "googleMapsApiKey": "AIzaSyB63PkRUMLBJUvaOihqucYTWNHo2NRq3wE"
       }
     },
     "android":{
-  "package" : "com.company.myapp",
+  "package" : "com.company.myawesomeproject",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
       "config": {
         "googleMaps": {
-          "apiKey": "AIzaSyDgvnfgTyu6EJ4uI65P_W9Bi8vvuUrIZGw"
+          "apiKey": "AIzaSyB63PkRUMLBJUvaOihqucYTWNHo2NRq3wE"
         }
       },
       "softwareKeyboardLayoutMode": "pan"

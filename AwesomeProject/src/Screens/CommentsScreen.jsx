@@ -100,6 +100,7 @@ const hundleComment=()=>{
                 </View>
               )}
               keyExtractor={(item) => item.id}
+              showsVerticalScrollIndicator={false}
             ></FlatList>
 
             <View style={styles.boxComment}>

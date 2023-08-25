@@ -6,8 +6,8 @@ import ProfileScreen from "../Screens/ProfileScreen";
 import { Ionicons, AntDesign, Feather } from "@expo/vector-icons";
 import HeaderText from "../components/HeaderText";
 import HeaderBtnBack from "../components/HeaderBtnBack";
-import HeaderTextPostsScreen from "../components/HeaderTextPostsScreen";
-import HeaderBtnLogoutPostsScreen from "../components/HeaderBtnLogoutPostsScreen";
+import HeaderTextPosts from "../components/HeaderTextPosts";
+import HeaderBtnLogoutPosts from "../components/HeaderBtnLogoutPosts";
 const Tab = createBottomTabNavigator();
 
 export default BottomNavigator = () => {
@@ -54,8 +54,8 @@ export default BottomNavigator = () => {
         name="PostsScreen"
         component={PostsScreen}
         options={{
-          headerTitle: () => <HeaderTextPostsScreen />,
-          headerRight: () => <HeaderBtnLogoutPostsScreen />,
+          headerTitle: () => <HeaderTextPosts />,
+          headerRight: () => <HeaderBtnLogoutPosts />,
         }}
       />
       <Tab.Screen

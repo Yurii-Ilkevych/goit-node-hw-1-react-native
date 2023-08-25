@@ -1,6 +1,6 @@
 import { View, Text, StyleSheet } from "react-native";
 
-export default HeaderTextPostsScreen = () => {
+export default HeaderTextPosts = () => {
   return (
     <View >
       <Text style={styles.mainText}>Публікації</Text>

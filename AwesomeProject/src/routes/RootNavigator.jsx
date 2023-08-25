@@ -12,7 +12,7 @@ const MainStack = createStackNavigator();
 export default RootNavigator =()=>{
 
     return (
-          <MainStack.Navigator initialRouteName="LoginScreen">
+          <MainStack.Navigator initialRouteName="LoginScreen" >
             <MainStack.Screen
               name="RegistrationScreen"
               component={RegistrationScreen}
@@ -36,7 +36,7 @@ export default RootNavigator =()=>{
               headerTitle: () => <HeaderText Tittle={"Коментарі"} />,
               headerLeft: () => <HeaderBtnBack />,
               headerStyle: { borderBottomWidth: 0.5, borderColor: "#0000004D"},
-
+              headerTitleAlign: "center",
             }}
             />
                         <MainStack.Screen
@@ -45,7 +45,7 @@ export default RootNavigator =()=>{
               headerTitle: () => <HeaderText Tittle={"Карта"} />,
               headerLeft: () => <HeaderBtnBack />,
               headerStyle: { borderBottomWidth: 0.5, borderColor: "#0000004D"},
-
+              headerTitleAlign: "center",
             }}
             />
             

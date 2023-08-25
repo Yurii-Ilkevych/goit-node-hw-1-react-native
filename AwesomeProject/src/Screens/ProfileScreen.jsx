@@ -92,6 +92,7 @@ export default ProfileScreen = () => {
               )}
               ListFooterComponent={<View style={styles.publishedFooter}></View>}
               keyExtractor={(item) => item.id}
+              showsVerticalScrollIndicator={false}
             ></FlatList>
           </View>
         </View>

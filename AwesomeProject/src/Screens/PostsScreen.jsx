@@ -5,18 +5,43 @@ import {
   View,
   TouchableOpacity,
   ImageBackground,
+  FlatList,
 } from "react-native";
 import { EvilIcons, FontAwesome, SimpleLineIcons } from "@expo/vector-icons";
 import { useState } from "react";
  import { useNavigation } from "@react-navigation/native";
+
+
+
+ const DATA = [
+  {
+    id: "bd7acbea-c1b1-46c2-aed5-3ad53abb28ba",
+    tittle: "Осінь",
+    location: "Київ",
+    commentLength: 32,
+  },
+  {
+    id: "3ac68afc-c605-48d3-a4f8-fbd91aa97f63",
+    tittle: "Пляж",
+    location: "Одесса",
+    commentLength: 46,
+  },
+  {
+    id: "58694a0f-3da1-471f-bd96-145571e29d72",
+    tittle: "Тризуб",
+    location: "Бахмут",
+    commentLength: 67,
+  },
+];
+
+
+
 
 export default PostsScreen = ({ route }) => {
   const [countValue, setCounterValue] = useState(0);
    const navigation = useNavigation()
 
   const { newPhoto, coords, address, localText, tittleName } = route?.params || {};
-
-  console.log(address);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -29,38 +54,47 @@ export default PostsScreen = ({ route }) => {
           </View>
         </View>
 
-        <View style={styles.publishedContainer}>
+        <FlatList
+        data={DATA}
+        keyExtractor={(item) => item.id}
+        showsVerticalScrollIndicator={false}
+        renderItem={({item})=>(
+          <View style={styles.publishedContainer}>
           {!newPhoto ? (
             <View style={styles.publishedBox}></View>
           ) : (
             <ImageBackground style={styles.image} source={newPhoto}></ImageBackground>
           )}
 
-          <Text style={styles.tittlePublished}>{tittleName? tittleName: "Tittle"}</Text>
+          <Text style={styles.tittlePublished}>{tittleName ? tittleName : item.tittle}</Text>
           <View style={styles.socialBox}>
             <TouchableOpacity
              onPress={()=>{navigation.navigate("CommentsScreen", {newPhoto})}} 
             style={styles.socialBoxStart}>
-              {countValue > 0 ? (
+              {item.commentLength > 0 && !newPhoto ? (
                 <FontAwesome name="comment" size={24} color="#FF6C00" />
               ) : (
                 <EvilIcons name="comment" size={24} color="#BDBDBD" />
               )}
 
               <Text
-                style={[styles.counter, countValue < 1 && { color: "#BDBDBD" }]}
+                style={[styles.counter, countValue < 1 && !newPhoto & { color: "#BDBDBD" }]}
               >
-                {countValue}
+                {newPhoto ? countValue : item.commentLength}
               </Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.socialBoxEnd} onPress={()=>{navigation.navigate("MapScreen")}}
+            <TouchableOpacity style={styles.socialBoxEnd} onPress={()=>{navigation.navigate("MapScreen", {locate: coords})}}
             //  disabled={!coords || !address}
              >
               <SimpleLineIcons name="location-pin" size={24} color="#BDBDBD" />
-              <Text style={styles.locationText}>{address ? <>{address[0].city}, {localText}</>:"Location"}</Text>
+              <Text style={styles.locationText}>{address ? <>{address[0].city}, {localText}</>: item.location}</Text>
             </TouchableOpacity>
           </View>
         </View>
+        )}
+        ListFooterComponent={<View style={styles.publishedFooter}></View>}
+        ></FlatList>
+
       </View>
     </SafeAreaView>
   );
@@ -116,7 +150,7 @@ const styles = StyleSheet.create({
     marginVertical: 8,
   },
   publishedFooter: {
-    height: 43,
+    padding: 25,
   },
   socialBox: {
     flexDirection: "row",
