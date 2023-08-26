@@ -117,7 +117,7 @@ export default CreatePostsScreen = () => {
           {!pandingPablish ? (
             <View style={styles.ineerContainer}>
               <View style={styles.mainContainer}>
-                {!!newPhoto ? (
+                {!newPhoto ? (
                   <Camera
                     style={[
                       styles.fotoboxCamera,
