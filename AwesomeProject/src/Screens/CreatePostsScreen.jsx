@@ -104,7 +104,7 @@ export default CreatePostsScreen = () => {
     setTittleName("");
     setNewPhoto(null);
   };
-  // console.log(newPhoto)
+   console.log(!!newPhoto)
   // console.log(isCameraReady)
   return (
     <SafeAreaView style={styles.container}>
@@ -117,7 +117,7 @@ export default CreatePostsScreen = () => {
           {!pandingPablish ? (
             <View style={styles.ineerContainer}>
               <View style={styles.mainContainer}>
-                {!newPhoto ? (
+                {!!newPhoto ? (
                   <Camera
                     style={[
                       styles.fotoboxCamera,
@@ -131,15 +131,15 @@ export default CreatePostsScreen = () => {
                        disabled={newPhoto !== null }
                       style={[
                         styles.cameraBtn,
-                        newPhoto === null
-                          ?  styles.cameraBtnDeactiv : styles.cameraBtnActiv
+                        !!newPhoto
+                          ?  styles.cameraBtnActiv : styles.cameraBtnDeactiv
                       ]}
                       onPress={hundleTakePhoto}
                     >
                       <FontAwesome
                         name="camera"
                         size={24}
-                        color={ newPhoto === null ?  "#BDBDBD": "#FFFFFF"}
+                        color={ !!newPhoto ? "#FFFFFF" : "#BDBDBD"}
                       />
                     </TouchableOpacity>
                     <Spinner visible={pandingTakePhoto} />
