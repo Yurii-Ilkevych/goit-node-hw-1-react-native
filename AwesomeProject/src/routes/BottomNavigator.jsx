@@ -41,6 +41,7 @@ export default BottomNavigator = () => {
           paddingTop: 9,
           borderTopWidth: 0.5,
           borderColor: "#0000004D",
+          paddingBottom: 9
         },
         tabBarActiveTintColor: "#FFFFFF",
         tabBarInactiveTintColor: "#212121CC",

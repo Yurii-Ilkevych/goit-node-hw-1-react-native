@@ -9,11 +9,9 @@ import {
 } from "react-native";
 import { EvilIcons, FontAwesome, SimpleLineIcons } from "@expo/vector-icons";
 import { useState } from "react";
- import { useNavigation } from "@react-navigation/native";
+import { useNavigation } from "@react-navigation/native";
 
-
-
- const DATA = [
+const DATA = [
   {
     id: "bd7acbea-c1b1-46c2-aed5-3ad53abb28ba",
     tittle: "Осінь",
@@ -34,14 +32,12 @@ import { useState } from "react";
   },
 ];
 
-
-
-
 export default PostsScreen = ({ route }) => {
   const [countValue, setCounterValue] = useState(0);
-   const navigation = useNavigation()
+  const navigation = useNavigation();
 
-  const { newPhoto, coords, address, localText, tittleName } = route?.params || {};
+  const { newPhoto, coords, address, localText, tittleName } =
+    route?.params || {};
 
   return (
     <SafeAreaView style={styles.container}>
@@ -55,46 +51,71 @@ export default PostsScreen = ({ route }) => {
         </View>
 
         <FlatList
-        data={DATA}
-        keyExtractor={(item) => item.id}
-        showsVerticalScrollIndicator={false}
-        renderItem={({item})=>(
-          <View style={styles.publishedContainer}>
-          {!newPhoto ? (
-            <View style={styles.publishedBox}></View>
-          ) : (
-            <ImageBackground style={styles.image} source={newPhoto}></ImageBackground>
-          )}
-
-          <Text style={styles.tittlePublished}>{tittleName ? tittleName : item.tittle}</Text>
-          <View style={styles.socialBox}>
-            <TouchableOpacity
-             onPress={()=>{navigation.navigate("CommentsScreen", {newPhoto})}} 
-            style={styles.socialBoxStart}>
-              {item.commentLength > 0 && !newPhoto ? (
-                <FontAwesome name="comment" size={24} color="#FF6C00" />
+          data={DATA}
+          keyExtractor={(item) => item.id}
+          showsVerticalScrollIndicator={false}
+          renderItem={({ item }) => (
+            <View style={styles.publishedContainer}>
+              {!newPhoto ? (
+                <View style={styles.publishedBox}></View>
               ) : (
-                <EvilIcons name="comment" size={24} color="#BDBDBD" />
+                <ImageBackground
+                  style={styles.image}
+                  source={newPhoto}
+                ></ImageBackground>
               )}
 
-              <Text
-                style={[styles.counter, countValue < 1 && !newPhoto & { color: "#BDBDBD" }]}
-              >
-                {newPhoto ? countValue : item.commentLength}
+              <Text style={styles.tittlePublished}>
+                {tittleName ? tittleName : item.tittle}
               </Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.socialBoxEnd} onPress={()=>{navigation.navigate("MapScreen", {locate: coords})}}
-            //  disabled={!coords || !address}
-             >
-              <SimpleLineIcons name="location-pin" size={24} color="#BDBDBD" />
-              <Text style={styles.locationText}>{address ? <>{address[0].city}, {localText}</>: item.location}</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-        )}
-        ListFooterComponent={<View style={styles.publishedFooter}></View>}
-        ></FlatList>
+              <View style={styles.socialBox}>
+                <TouchableOpacity
+                  onPress={() => {
+                    navigation.navigate("CommentsScreen", { newPhoto });
+                  }}
+                  style={styles.socialBoxStart}
+                >
+                  {item.commentLength > 0 && !newPhoto ? (
+                    <FontAwesome name="comment" size={24} color="#FF6C00" />
+                  ) : (
+                    <EvilIcons name="comment" size={24} color="#BDBDBD" />
+                  )}
 
+                  <Text
+                    style={[
+                      styles.counter,
+                      countValue < 1 && !newPhoto & { color: "#BDBDBD" },
+                    ]}
+                  >
+                    {newPhoto ? countValue : item.commentLength}
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.socialBoxEnd}
+                  onPress={() => {
+                    navigation.navigate("MapScreen", { locate: coords });
+                  }}
+                >
+                  <SimpleLineIcons
+                    name="location-pin"
+                    size={24}
+                    color="#BDBDBD"
+                  />
+                  <Text style={styles.locationText}>
+                    {address ? (
+                      <>
+                        {address[0].city}, {localText}
+                      </>
+                    ) : (
+                      item.location
+                    )}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          )}
+          ListFooterComponent={<View style={styles.publishedFooter}></View>}
+        ></FlatList>
       </View>
     </SafeAreaView>
   );

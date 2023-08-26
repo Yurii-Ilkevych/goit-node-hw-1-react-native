@@ -17,6 +17,8 @@ import * as Location from "expo-location";
 import { Camera, CameraType } from "expo-camera";
 import { useNavigation } from "@react-navigation/native";
 
+
+
 export default CreatePostsScreen = () => {
   const [type, setType] = useState(CameraType.back);
   const [localText, setlocalText] = useState("");
@@ -73,6 +75,7 @@ export default CreatePostsScreen = () => {
     if (isCameraReady) {
       try {
         const photo = await cameraRef.current.takePictureAsync({ quality: 1 });
+        console.log(photo)
         setNewPhoto(photo);
       } catch (error) {
         console.log(error);
@@ -101,7 +104,8 @@ export default CreatePostsScreen = () => {
     setTittleName("");
     setNewPhoto(null);
   };
-  console.log(newPhoto !== null)
+  // console.log(newPhoto)
+  // console.log(isCameraReady)
   return (
     <SafeAreaView style={styles.container}>
       <KeyboardAvoidingView
@@ -124,7 +128,7 @@ export default CreatePostsScreen = () => {
                     ref={cameraRef}
                   >
                     <TouchableOpacity
-                      disabled={newPhoto || !isCameraReady}
+                       disabled={newPhoto !== null }
                       style={[
                         styles.cameraBtn,
                         newPhoto === null
@@ -143,7 +147,7 @@ export default CreatePostsScreen = () => {
                 ) : (
                   <ImageBackground style={styles.image} source={newPhoto}>
                     <TouchableOpacity
-                      disabled={newPhoto}
+                       disabled={true}
                       style={[styles.cameraBtn, styles.cameraBtnActiv]}
                     >
                       <FontAwesome name="camera" size={24} color={"#FFFFFF"} />

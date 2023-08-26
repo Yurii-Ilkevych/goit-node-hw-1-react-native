@@ -70,7 +70,11 @@ export default ProfileScreen = () => {
                   <Text style={styles.tittlePublished}>{item.title}</Text>
                   <View style={styles.socialBox}>
                     <View style={styles.socialBoxStart}>
-                      <TouchableOpacity onPress={()=>{navigation.navigate("CommentsScreen");}}>
+                      <TouchableOpacity
+                        onPress={() => {
+                          navigation.navigate("CommentsScreen");
+                        }}
+                      >
                         <FontAwesome name="comment" size={24} color="#FF6C00" />
                       </TouchableOpacity>
                       <Text style={styles.counter}>{item.commentLength}</Text>
@@ -79,14 +83,19 @@ export default ProfileScreen = () => {
                       </TouchableOpacity>
                       <Text style={styles.counter}>{item.likes}</Text>
                     </View>
-                      <TouchableOpacity style={styles.socialBoxEnd}>
+                    <TouchableOpacity
+                      style={styles.socialBoxEnd}
+                      onPress={() => {
+                        navigation.navigate("MapScreen");
+                      }}
+                    >
                       <SimpleLineIcons
                         name="location-pin"
                         size={24}
                         color="#BDBDBD"
                       />
                       <Text style={styles.locationText}>{item.location}</Text>
-                      </TouchableOpacity>
+                    </TouchableOpacity>
                   </View>
                 </View>
               )}
@@ -200,5 +209,3 @@ const styles = StyleSheet.create({
     marginLeft: 24,
   },
 });
-
-  
