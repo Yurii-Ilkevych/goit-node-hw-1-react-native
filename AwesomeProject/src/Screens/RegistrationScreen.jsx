@@ -10,32 +10,50 @@ import {
   TextInput,
 } from "react-native";
 import { useState } from "react";
-import { AntDesign } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import SharedLayout from "../components/SharedLayout";
+import { useDispatch } from "react-redux";
+import { registerDB } from "../redux/authUser/authOperators";
+import { useUser } from "../hooks/useUser";
+import { useEffect } from "react";
+import Spinner from "react-native-loading-spinner-overlay";
+import { UploadAvatar } from "../components/UploadAvatar";
 
 export default RegistrationScreen = () => {
   const [isFocusInpuLogint, setIsFocusInputLogin] = useState(false);
   const [isFocusInputEmail, setIsFocusInputEmail] = useState(false);
   const [isFocusInputPassword, setIsFocusInputPassword] = useState(false);
   const [isShowPassword, setIsShowPassword] = useState(true);
-  const [login, setlogin] = useState("");
+  const [hasRendered, setHasRendered] = useState(false);
+  const [loginValue, setlogin] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [imageBlob, setImageBlob] = useState(null);
   const navigation = useNavigation();
+  const dispatch = useDispatch();
+  const { isLoading, errorRegister } = useUser();
 
   const onRegister = () => {
-    console.log({
-      login: login,
-      email: email,
-      password: password,
-    });
+    const login = loginValue.trim();
+    dispatch(registerDB({ login, email, password, imageBlob }));
+    hundleResetForm();
+  };
+  const hundleResetForm = () => {
     setlogin("");
     setEmail("");
     setPassword("");
-    navigation.navigate("BottomNavigator");
   };
 
+  const hundleGetAvatar = (imageBlob) => {
+    setImageBlob(imageBlob);
+  };
+  useEffect(() => {
+    if (errorRegister && hasRendered) {
+      this.toast.show(errorRegister, 2500);
+    } else {
+      setHasRendered(true);
+    }
+  }, [errorRegister]);
   return (
     <SharedLayout>
       <KeyboardAvoidingView
@@ -45,18 +63,9 @@ export default RegistrationScreen = () => {
       >
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
           <View style={styles.innerContainer}>
-
+            <Spinner visible={isLoading} />
             <View style={styles.boxAuth}>
-              <View style={styles.fotoBox}>
-                <TouchableOpacity style={styles.addBtn}>
-                  <AntDesign
-                    name="pluscircleo"
-                    style={styles.addSvg}
-                    size={25}
-                  />
-                </TouchableOpacity>
-              </View>
-
+              <UploadAvatar getAvatar={hundleGetAvatar} />
               <Text style={styles.registerText}>Реєстрація</Text>
 
               <View style={styles.boxInput}>
@@ -68,8 +77,10 @@ export default RegistrationScreen = () => {
                     setIsFocusInputLogin(false);
                   }}
                   autoCapitalize="none"
-                  value={login}
-                  onChangeText={setlogin}
+                  value={loginValue}
+                  onChangeText={(el) => {
+                    setlogin(el);
+                  }}
                   placeholder="Логін"
                   style={[
                     styles.commonInput,
@@ -86,7 +97,9 @@ export default RegistrationScreen = () => {
                   autoComplete="email"
                   autoCapitalize="none"
                   value={email}
-                  onChangeText={setEmail}
+                  onChangeText={(el) => {
+                    setEmail(el.trim());
+                  }}
                   placeholder="Адреса електронної пошти"
                   style={[
                     styles.commonInput,
@@ -105,7 +118,9 @@ export default RegistrationScreen = () => {
                     autoComplete="password"
                     autoCapitalize="none"
                     value={password}
-                    onChangeText={setPassword}
+                    onChangeText={(el) => {
+                      setPassword(el.trim());
+                    }}
                     placeholder="Пароль"
                     style={[
                       styles.commonInput,
@@ -134,7 +149,6 @@ export default RegistrationScreen = () => {
                 <Text style={styles.signInText}>Вже є акаунт? Увійти</Text>
               </TouchableOpacity>
             </View>
-            
           </View>
         </TouchableWithoutFeedback>
       </KeyboardAvoidingView>
@@ -156,27 +170,6 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 25,
     paddingHorizontal: 16,
     paddingBottom: 34,
-  },
-  fotoBox: {
-    width: 120,
-    height: 120,
-    backgroundColor: "#F6F6F6",
-    marginLeft: "auto",
-    marginRight: "auto",
-    borderRadius: 16,
-    marginTop: -60,
-  },
-  addSvg: {
-    color: "#FF6C00",
-  },
-  addBtn: {
-    width: 25,
-    height: 25,
-    borderRadius: 100,
-    marginLeft: "auto",
-    marginTop: "auto",
-    marginBottom: 14,
-    marginRight: -13,
   },
   commonInput: {
     backgroundColor: "#F6F6F6",

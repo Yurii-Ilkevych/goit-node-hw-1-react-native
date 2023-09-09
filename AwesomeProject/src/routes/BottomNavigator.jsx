@@ -13,7 +13,7 @@ const Tab = createBottomTabNavigator();
 export default BottomNavigator = () => {
   return (
     <Tab.Navigator
-      initialRouteName="PostsScreen"
+      initialRouteName={"PostsScreen"}
       screenOptions={({ route }) => ({
         tabBarIcon: ({ focused, color, size }) => {
           if (route.name === "CreatePostsScreen") {
@@ -41,14 +41,14 @@ export default BottomNavigator = () => {
           paddingTop: 9,
           borderTopWidth: 0.5,
           borderColor: "#0000004D",
-          paddingBottom: 9
+          paddingBottom: 9,
         },
         tabBarActiveTintColor: "#FFFFFF",
         tabBarInactiveTintColor: "#212121CC",
         tabBarShowLabel: false,
-        headerStyle: { borderBottomWidth: 0.5, borderColor: "#0000004D"},
+        headerStyle: { borderBottomWidth: 0.5, borderColor: "#0000004D" },
         headerTitleAlign: "center",
-        unmountOnBlur:true
+        unmountOnBlur: true,
       })}
     >
       <Tab.Screen
@@ -56,19 +56,17 @@ export default BottomNavigator = () => {
         component={PostsScreen}
         options={{
           headerTitle: () => <HeaderTextPosts />,
-          headerRight: () => <HeaderBtnLogoutPosts />,
+          headerRight: () => <HeaderBtnLogoutPosts style={styles.iconBtn} />,
         }}
       />
       <Tab.Screen
         name="CreatePostsScreen"
         component={CreatePostsScreen}
         options={{
-          headerTitle: () => <HeaderText Tittle={"Створити публікацію"}/>,
+          headerTitle: () => <HeaderText Tittle={"Створити публікацію"} />,
           headerLeft: () => <HeaderBtnBack />,
           tabBarStyle: { display: "none" },
-          
         }}
-        
       />
       <Tab.Screen
         name="ProfileScreen"
@@ -89,5 +87,8 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     justifyContent: "center",
     alignItems: "center",
+  },
+  iconBtn: {
+    right: 16,
   },
 });

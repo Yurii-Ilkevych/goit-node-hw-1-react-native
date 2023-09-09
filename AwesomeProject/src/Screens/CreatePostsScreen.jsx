@@ -16,27 +16,33 @@ import { useState, useEffect, useRef } from "react";
 import * as Location from "expo-location";
 import { Camera, CameraType } from "expo-camera";
 import { useNavigation } from "@react-navigation/native";
-
-
+import { useDispatch } from "react-redux";
+import { createPost } from "../redux/posts/postsOperators";
+import { usePost } from "../hooks";
+//import Toast, {DURATION} from 'react-native-easy-toast'
 
 export default CreatePostsScreen = () => {
   const [type, setType] = useState(CameraType.back);
-  const [localText, setlocalText] = useState("");
-  const [tittleName, setTittleName] = useState("");
+  const [localTittle, setlocalTittle] = useState("");
+  const [tittlePost, setTittlePost] = useState("");
   const [hasPermission, setHasPermission] = useState(null);
   const [newPhoto, setNewPhoto] = useState(null);
   const [isCameraReady, setIsCameraReady] = useState(false);
   const [pandingPablish, setPandingPablish] = useState(false);
   const [pandingTakePhoto, setPendingTakePhoto] = useState(false);
+  const [hasRendered, setHasRendered] = useState(false);
   const cameraRef = useRef(null);
   const navigation = useNavigation();
+  const dispatch = useDispatch();
+  const { errorCreatePost } = usePost();
 
   hundleCreatePost = async () => {
     setPandingPablish(true);
     try {
       let { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== "granted") {
-        console.log("Permission to access location was denied");
+        this.toast.show("Permission to access location was denied", 2500);
+        return;
       }
       let location = await Location.getCurrentPositionAsync({});
       let address = await Location.reverseGeocodeAsync(location.coords);
@@ -45,23 +51,19 @@ export default CreatePostsScreen = () => {
         latitude: location.coords.latitude,
         longitude: location.coords.longitude,
       };
-
-      //console.log(coords, newPhoto);
-      //console.log(address)
-      navigation.navigate("PostsScreen", {
-        newPhoto,
-        coords,
-        address,
-        localText,
-        tittleName,
-      });
+      const city = address[0].city;
+      const response = await fetch(newPhoto.uri);
+      const blob = await response.blob();
+      dispatch(createPost({ blob, coords, city, localTittle, tittlePost }));
       hundleAllDelete();
       setPandingPablish(false);
+      navigation.navigate("PostsScreen");
     } catch (error) {
-      console.log(error);
+      setPandingPablish(false);
+      hundleAllDelete();
+      this.toast.show(error.message, 2500);
     }
   };
-
   hundleTakePhoto = async () => {
     setPendingTakePhoto(true);
     if (!hasPermission) {
@@ -69,20 +71,28 @@ export default CreatePostsScreen = () => {
         let { status } = await Camera.requestCameraPermissionsAsync();
         setHasPermission(status === "granted");
       } catch (error) {
-        console.log(error);
+        this.toast.show(error.message, 2500);
       }
     }
     if (isCameraReady) {
       try {
         const photo = await cameraRef.current.takePictureAsync({ quality: 1 });
-        console.log(photo)
         setNewPhoto(photo);
       } catch (error) {
-        console.log(error);
+        this.toast.show(error.message, 2500);
       }
     }
     setPendingTakePhoto(false);
   };
+
+  useEffect(() => {
+    if (errorCreatePost && hasRendered) {
+      console.log(errorCreatePost);
+      this.toast.show(errorCreatePost, 2500);
+    } else {
+      setHasRendered(true);
+    }
+  }, [errorCreatePost]);
 
   useEffect(() => {
     (async () => {
@@ -90,7 +100,7 @@ export default CreatePostsScreen = () => {
         const { status } = await Camera.requestCameraPermissionsAsync();
         setHasPermission(status === "granted");
       } catch (error) {
-        console.log(error);
+        this.toast.show(error.message, 2500);
       }
     })();
   }, []);
@@ -100,12 +110,11 @@ export default CreatePostsScreen = () => {
   };
 
   hundleAllDelete = () => {
-    setlocalText("");
-    setTittleName("");
+    setlocalTittle("");
+    setTittlePost("");
     setNewPhoto(null);
   };
-   console.log(!!newPhoto)
-  // console.log(isCameraReady)
+
   return (
     <SafeAreaView style={styles.container}>
       <KeyboardAvoidingView
@@ -128,18 +137,19 @@ export default CreatePostsScreen = () => {
                     ref={cameraRef}
                   >
                     <TouchableOpacity
-                       disabled={newPhoto !== null }
+                      disabled={newPhoto !== null}
                       style={[
                         styles.cameraBtn,
                         !!newPhoto
-                          ?  styles.cameraBtnActiv : styles.cameraBtnDeactiv
+                          ? styles.cameraBtnActiv
+                          : styles.cameraBtnDeactiv,
                       ]}
                       onPress={hundleTakePhoto}
                     >
                       <FontAwesome
                         name="camera"
                         size={24}
-                        color={ !!newPhoto ? "#FFFFFF" : "#BDBDBD"}
+                        color={!!newPhoto ? "#FFFFFF" : "#BDBDBD"}
                       />
                     </TouchableOpacity>
                     <Spinner visible={pandingTakePhoto} />
@@ -147,7 +157,7 @@ export default CreatePostsScreen = () => {
                 ) : (
                   <ImageBackground style={styles.image} source={newPhoto}>
                     <TouchableOpacity
-                       disabled={true}
+                      disabled={true}
                       style={[styles.cameraBtn, styles.cameraBtnActiv]}
                     >
                       <FontAwesome name="camera" size={24} color={"#FFFFFF"} />
@@ -162,8 +172,8 @@ export default CreatePostsScreen = () => {
                 <TextInput
                   placeholder="Назва..."
                   style={[styles.input, styles.commoText, styles.colorInput]}
-                  value={tittleName}
-                  onChangeText={setTittleName}
+                  value={tittlePost}
+                  onChangeText={setTittlePost}
                 ></TextInput>
                 <View style={styles.containerLocalIcon}>
                   <View style={styles.boxLocalIcon}>
@@ -182,20 +192,20 @@ export default CreatePostsScreen = () => {
                       styles.commoText,
                       styles.colorInput,
                     ]}
-                    value={localText}
-                    onChangeText={setlocalText}
+                    value={localTittle}
+                    onChangeText={setlocalTittle}
                   ></TextInput>
                 </View>
                 <TouchableOpacity
                   disabled={
-                    localText.length === 0 ||
-                    tittleName.length === 0 ||
+                    localTittle.length === 0 ||
+                    tittlePost.length === 0 ||
                     newPhoto === null
                   }
                   style={[
                     styles.btnPublish,
-                    localText.length === 0 ||
-                    tittleName.length === 0 ||
+                    localTittle.length === 0 ||
+                    tittlePost.length === 0 ||
                     newPhoto === null
                       ? styles.btnPublishDeactive
                       : styles.btnPublishActive,
@@ -205,8 +215,8 @@ export default CreatePostsScreen = () => {
                   <Text
                     style={[
                       styles.btnPublishText,
-                      localText.length === 0 ||
-                      tittleName.length === 0 ||
+                      localTittle.length === 0 ||
+                      tittlePost.length === 0 ||
                       newPhoto === null
                         ? styles.btnPublishTextDeactive
                         : styles.btnPublishTextActive,
@@ -220,19 +230,19 @@ export default CreatePostsScreen = () => {
                 onPress={hundleAllDelete}
                 style={[
                   styles.btnDell,
-                  tittleName.length > 0 || newPhoto || localText.length > 0
+                  tittlePost.length > 0 || newPhoto || localTittle.length > 0
                     ? styles.btnPublishActive
                     : styles.btnPublishDeactive,
                 ]}
                 disabled={
-                  localText.length < 1 && tittleName.length < 1 && !newPhoto
+                  localTittle.length < 1 && tittlePost.length < 1 && !newPhoto
                 }
               >
                 <AntDesign
                   name="delete"
                   size={24}
                   color={
-                    localText.length < 1 && tittleName.length < 1 && !newPhoto
+                    localTittle.length < 1 && tittlePost.length < 1 && !newPhoto
                       ? "#BDBDBD"
                       : "#FFFFFF"
                   }
@@ -240,11 +250,8 @@ export default CreatePostsScreen = () => {
               </TouchableOpacity>
             </View>
           ) : (
-           
             <View style={styles.saveBox}>
-              <Spinner visible={pandingPablish} 
-              textContent="Публікую..."
-              />
+              <Spinner visible={pandingPablish} textContent="Публікую..." />
             </View>
           )}
         </TouchableWithoutFeedback>

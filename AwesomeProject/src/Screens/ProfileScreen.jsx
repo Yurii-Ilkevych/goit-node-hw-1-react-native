@@ -5,88 +5,109 @@ import {
   SafeAreaView,
   TouchableOpacity,
   FlatList,
+  ImageBackground,
+  RefreshControl,
 } from "react-native";
 import SharedLayout from "../components/SharedLayout";
 import {
   AntDesign,
-  MaterialIcons,
+  EvilIcons,
   FontAwesome,
   SimpleLineIcons,
 } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
-
-const DATA = [
-  {
-    id: "bd7acbea-c1b1-46c2-aed5-3ad53abb28ba",
-    title: "Осінь",
-    location: "Київ",
-    likes: 234,
-    commentLength: 32,
-  },
-  {
-    id: "3ac68afc-c605-48d3-a4f8-fbd91aa97f63",
-    title: "Пляж",
-    location: "Одесса",
-    likes: 334,
-    commentLength: 46,
-  },
-  {
-    id: "58694a0f-3da1-471f-bd96-145571e29d72",
-    title: "Тризуб",
-    location: "Бахмут",
-    likes: 534,
-    commentLength: 67,
-  },
-];
+import HeaderBtnLogoutPosts from "../components/HeaderBtnLogoutPosts";
+import Spinner from "react-native-loading-spinner-overlay";
+import { useUser } from "../hooks";
+import { usePost } from "../hooks";
+import { useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
+import { ChangeAvatar } from "../components/ChangeAvatar";
+import { getPosts } from "../redux/posts/postsOperators";
 
 export default ProfileScreen = () => {
+  const [refreshing, setRefreshing] = useState(false);
   const navigation = useNavigation();
+  const { user } = useUser();
+  const { isLoading, errorGetPost, dataPost } = usePost();
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(getPosts());
+  }, [dispatch]);
+
+  useEffect(() => {
+    if (errorGetPost) {
+      this.toast.show(errorGetPost, 2500);
+    }
+  }, [errorGetPost]);
+
+  const fetchData = async () => {
+    setRefreshing(true);
+    dispatch(getPosts());
+    setRefreshing(false);
+  };
 
   return (
     <SharedLayout>
       <SafeAreaView style={styles.container}>
         <View style={styles.innerContainer}>
+          <Spinner visible={isLoading} />
           <View style={styles.profileBox}>
-            <View style={styles.fotoBox}>
-              <TouchableOpacity style={styles.addBtn}>
-                <AntDesign name="pluscircleo" style={styles.addSvg} size={25} />
-              </TouchableOpacity>
-            </View>
-            <TouchableOpacity
-              style={styles.iconBtn}
-              onPress={() => {
-                navigation.navigate("LoginScreen");
-              }}
-            >
-              <MaterialIcons name="logout" size={24} color="#BDBDBD" />
-            </TouchableOpacity>
-            <Text style={styles.userText}>Natali Romanova</Text>
+            <ChangeAvatar />
+            <HeaderBtnLogoutPosts style={styles.iconBtn} />
+            <Text style={styles.userText}>{user.displayName}</Text>
 
             <FlatList
-              data={DATA}
+              refreshControl={
+                <RefreshControl refreshing={refreshing} onRefresh={fetchData} />
+              }
+              data={dataPost}
+              keyExtractor={(item) => item.id}
               renderItem={({ item }) => (
                 <View style={styles.publishedContainer}>
-                  <View style={styles.publishedBox}></View>
-                  <Text style={styles.tittlePublished}>{item.title}</Text>
+                  <ImageBackground
+                    source={{ uri: item.postsUrl }}
+                    style={styles.image}
+                  ></ImageBackground>
+                  <Text style={styles.tittlePublished}>{item.tittlePost}</Text>
                   <View style={styles.socialBox}>
                     <View style={styles.socialBoxStart}>
                       <TouchableOpacity
                         onPress={() => {
-                          navigation.navigate("CommentsScreen");
+                          navigation.navigate("CommentsScreen", { post: item });
                         }}
                       >
-                        <FontAwesome name="comment" size={24} color="#FF6C00" />
+                        {item.comments.length > 0 ? (
+                          <FontAwesome
+                            name="comment"
+                            size={24}
+                            color="#FF6C00"
+                          />
+                        ) : (
+                          <EvilIcons name="comment" size={24} color="#BDBDBD" />
+                        )}
                       </TouchableOpacity>
-                      <Text style={styles.counter}>{item.commentLength}</Text>
+                      <Text style={styles.counter}>{item.comments.length}</Text>
                       <TouchableOpacity style={styles.icon}>
-                        <AntDesign name="like2" size={24} color="#FF6C00" />
+                        <AntDesign
+                          name="like2"
+                          size={24}
+                          color={
+                            item.likes > 1
+                              ? (color = "#FF6C00")
+                              : (color = "#BDBDBD")
+                          }
+                        />
                       </TouchableOpacity>
                       <Text style={styles.counter}>{item.likes}</Text>
                     </View>
                     <TouchableOpacity
                       style={styles.socialBoxEnd}
                       onPress={() => {
-                        navigation.navigate("MapScreen");
+                        navigation.navigate("MapScreen", {
+                          locate: item.coords,
+                        });
                       }}
                     >
                       <SimpleLineIcons
@@ -94,13 +115,14 @@ export default ProfileScreen = () => {
                         size={24}
                         color="#BDBDBD"
                       />
-                      <Text style={styles.locationText}>{item.location}</Text>
+                      <Text style={styles.locationText}>
+                        {item.localTittle} {item.city}
+                      </Text>
                     </TouchableOpacity>
                   </View>
                 </View>
               )}
               ListFooterComponent={<View style={styles.publishedFooter}></View>}
-              keyExtractor={(item) => item.id}
               showsVerticalScrollIndicator={false}
             ></FlatList>
           </View>
@@ -125,34 +147,13 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 25,
     borderTopLeftRadius: 25,
   },
-  fotoBox: {
-    width: 120,
-    height: 120,
-    backgroundColor: "#F6F6F6",
-    marginLeft: "auto",
-    marginRight: "auto",
-    borderRadius: 16,
-    marginTop: -60,
-    marginBottom: 32,
-  },
-  addSvg: {
-    color: "#FF6C00",
-  },
-  addBtn: {
-    width: 25,
-    height: 25,
-    borderRadius: 100,
-    marginLeft: "auto",
-    marginTop: "auto",
-    marginBottom: 14,
-    marginRight: -13,
-  },
   userText: {
     fontFamily: "Roboto-Medium",
     fontSize: 30,
     lineHeight: 35.16,
     color: "#212121",
     textAlign: "center",
+    marginBottom: 32,
   },
   iconBtn: {
     paddingHorizontal: 16,
@@ -161,13 +162,15 @@ const styles = StyleSheet.create({
     top: 22,
   },
   publishedContainer: {
-    marginTop: 32,
     paddingHorizontal: 16,
+    marginBottom: 32,
   },
-  publishedBox: {
-    backgroundColor: "#E8E8E8",
+  image: {
     height: 240,
     borderRadius: 8,
+    justifyContent: "center",
+    alignItems: "center",
+    overflow: "hidden",
   },
   tittlePublished: {
     fontFamily: "Roboto-Medium",

@@ -12,6 +12,11 @@ import {
 import { useState } from "react";
 import { useNavigation } from "@react-navigation/native";
 import SharedLayout from "../components/SharedLayout";
+import { useDispatch } from "react-redux";
+import { loginDB } from "../redux/authUser/authOperators";
+import { useUser } from "../hooks/useUser";
+import { useEffect } from "react";
+import Spinner from "react-native-loading-spinner-overlay";
 
 export default LoginScreen = () => {
   const [isFocusInputEmail, setIsFocusInputEmail] = useState(false);
@@ -19,17 +24,25 @@ export default LoginScreen = () => {
   const [isShowPassword, setIsShowPassword] = useState(true);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [textError, setTextError] = useState(null);
   const navigation = useNavigation();
+  const dispatch = useDispatch();
+  const { isLoading, errorLogin } = useUser();
 
   const onLogin = () => {
-    console.log({
-      email: email,
-      password: password,
-    });
+    dispatch(loginDB({ email, password }));
+    hundleResetForm();
+  };
+  const hundleResetForm = () => {
     setEmail("");
     setPassword("");
-    navigation.navigate("BottomNavigator");
   };
+
+  useEffect(() => {
+    if (errorLogin) {
+      this.toast.show(errorLogin, 2500);
+    }
+  }, [errorLogin]);
 
   return (
     <SharedLayout>
@@ -40,6 +53,7 @@ export default LoginScreen = () => {
       >
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
           <View style={styles.innerContainer}>
+            <Spinner visible={isLoading} />
             <View style={styles.boxAuth}>
               <Text style={styles.loginText}>Увійти</Text>
 
@@ -54,7 +68,9 @@ export default LoginScreen = () => {
                   autoComplete="email"
                   autoCapitalize="none"
                   value={email}
-                  onChangeText={setEmail}
+                  onChangeText={(el) => {
+                    setEmail(el.trim());
+                  }}
                   placeholder="Адреса електронної пошти"
                   style={[
                     styles.commonInput,
@@ -72,7 +88,9 @@ export default LoginScreen = () => {
                     secureTextEntry={isShowPassword}
                     autoCapitalize="none"
                     value={password}
-                    onChangeText={setPassword}
+                    onChangeText={(el) => {
+                      setPassword(el.trim());
+                    }}
                     placeholder="Пароль"
                     autoComplete="password"
                     style={[

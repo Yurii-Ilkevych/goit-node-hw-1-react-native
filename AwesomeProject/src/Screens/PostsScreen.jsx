@@ -6,76 +6,83 @@ import {
   TouchableOpacity,
   ImageBackground,
   FlatList,
+  RefreshControl,
 } from "react-native";
 import { EvilIcons, FontAwesome, SimpleLineIcons } from "@expo/vector-icons";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigation } from "@react-navigation/native";
+import { useUser } from "../hooks";
+import { useDispatch } from "react-redux";
+import { getPosts } from "../redux/posts/postsOperators";
+import { usePost } from "../hooks";
+import Spinner from "react-native-loading-spinner-overlay";
 
-const DATA = [
-  {
-    id: "bd7acbea-c1b1-46c2-aed5-3ad53abb28ba",
-    tittle: "Осінь",
-    location: "Київ",
-    commentLength: 32,
-  },
-  {
-    id: "3ac68afc-c605-48d3-a4f8-fbd91aa97f63",
-    tittle: "Пляж",
-    location: "Одесса",
-    commentLength: 46,
-  },
-  {
-    id: "58694a0f-3da1-471f-bd96-145571e29d72",
-    tittle: "Тризуб",
-    location: "Бахмут",
-    commentLength: 67,
-  },
-];
-
-export default PostsScreen = ({ route }) => {
-  const [countValue, setCounterValue] = useState(0);
+export default PostsScreen = () => {
+  const [refreshing, setRefreshing] = useState(false);
   const navigation = useNavigation();
+  const { user } = useUser();
+  const dispatch = useDispatch();
+  const { isLoading, errorGetPost, dataPost } = usePost();
 
-  const { newPhoto, coords, address, localText, tittleName } =
-    route?.params || {};
+  useEffect(() => {
+    dispatch(getPosts());
+  }, [dispatch]);
+
+  useEffect(() => {
+    if (errorGetPost) {
+      this.toast.show(errorGetPost, 2500);
+    }
+  }, [errorGetPost]);
+
+  const fetchData = async () => {
+    setRefreshing(true);
+    dispatch(getPosts());
+    setRefreshing(false);
+  };
 
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.innerContainer}>
         <View style={styles.userContainer}>
-          <View style={styles.fotoBox}></View>
+          <Spinner visible={isLoading} />
+          {user.photoURL ? (
+            <ImageBackground
+              source={{ uri: user.photoURL }}
+              style={styles.fotoBoxWithImage}
+            ></ImageBackground>
+          ) : (
+            <View style={styles.fotoBox}></View>
+          )}
+
           <View>
-            <Text style={styles.primaryTextUser}>Natali Romanova</Text>
-            <Text style={styles.secondaryTextUser}>email@example.com</Text>
+            <Text style={styles.primaryTextUser}>{user.displayName}</Text>
+            <Text style={styles.secondaryTextUser}>{user.email}</Text>
           </View>
         </View>
 
         <FlatList
-          data={DATA}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={fetchData} />
+          }
+          data={dataPost}
           keyExtractor={(item) => item.id}
           showsVerticalScrollIndicator={false}
           renderItem={({ item }) => (
             <View style={styles.publishedContainer}>
-              {!newPhoto ? (
-                <View style={styles.publishedBox}></View>
-              ) : (
-                <ImageBackground
-                  style={styles.image}
-                  source={newPhoto}
-                ></ImageBackground>
-              )}
+              <ImageBackground
+                style={styles.image}
+                source={{ uri: item.postsUrl }}
+              ></ImageBackground>
 
-              <Text style={styles.tittlePublished}>
-                {tittleName ? tittleName : item.tittle}
-              </Text>
+              <Text style={styles.tittlePublished}>{item.tittlePost}</Text>
               <View style={styles.socialBox}>
                 <TouchableOpacity
                   onPress={() => {
-                    navigation.navigate("CommentsScreen", { newPhoto });
+                    navigation.navigate("CommentsScreen", { post: item });
                   }}
                   style={styles.socialBoxStart}
                 >
-                  {item.commentLength > 0 && !newPhoto ? (
+                  {item.comments.length > 0 ? (
                     <FontAwesome name="comment" size={24} color="#FF6C00" />
                   ) : (
                     <EvilIcons name="comment" size={24} color="#BDBDBD" />
@@ -84,16 +91,16 @@ export default PostsScreen = ({ route }) => {
                   <Text
                     style={[
                       styles.counter,
-                      countValue < 1 && !newPhoto & { color: "#BDBDBD" },
+                      item.comments.length < 1 && { color: "#BDBDBD" },
                     ]}
                   >
-                    {newPhoto ? countValue : item.commentLength}
+                    {item.comments.length}
                   </Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                   style={styles.socialBoxEnd}
                   onPress={() => {
-                    navigation.navigate("MapScreen", { locate: coords });
+                    navigation.navigate("MapScreen", { locate: item.coords });
                   }}
                 >
                   <SimpleLineIcons
@@ -102,13 +109,7 @@ export default PostsScreen = ({ route }) => {
                     color="#BDBDBD"
                   />
                   <Text style={styles.locationText}>
-                    {address ? (
-                      <>
-                        {address[0].city}, {localText}
-                      </>
-                    ) : (
-                      item.location
-                    )}
+                    {item.localTittle} {item.city}
                   </Text>
                 </TouchableOpacity>
               </View>
@@ -133,35 +134,41 @@ const styles = StyleSheet.create({
     height: 60,
     borderRadius: 16,
   },
+  fotoBoxWithImage: {
+    width: 60,
+    height: 60,
+    borderRadius: 16,
+    resizeMode: "cover",
+    overflow: "hidden",
+  },
   image: {
     height: 240,
     borderRadius: 8,
     justifyContent: "center",
     alignItems: "center",
+    overflow: "hidden",
   },
   primaryTextUser: {
     fontFamily: "Roboto-Bold",
     fontSize: 13,
     lineHeight: 15.23,
+    color: "#212121",
   },
   secondaryTextUser: {
     fontFamily: "Roboto-Regular",
     fontSize: 11,
     lineHeight: 12.89,
+    color: "#212121CC",
   },
   userContainer: {
     flexDirection: "row",
     alignItems: "center",
     gap: 8,
+    marginBottom: 32,
   },
 
   publishedContainer: {
-    marginTop: 32,
-  },
-  publishedBox: {
-    backgroundColor: "#E8E8E8",
-    height: 240,
-    borderRadius: 8,
+    marginBottom: 32,
   },
   tittlePublished: {
     fontFamily: "Roboto-Medium",

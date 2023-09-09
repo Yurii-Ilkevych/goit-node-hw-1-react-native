@@ -12,51 +12,50 @@ import {
   FlatList,
 } from "react-native";
 import { AntDesign } from "@expo/vector-icons";
-import { useState } from "react";
-
-const DATA = [
-  {
-    id: "bd7acbea-c1b1-46c2-aed5-3ad53abb28ba",
-    text: "Really love your most recent photo. I've been trying to capture the same thing for a few months and would love some tips!",
-    user: "You",
-    dataTime: "09 червня, 2020 | 08:40",
-  },
-  {
-    id: "3ac68afc-c605-48d3-a4f8-fbd91aa97f63",
-    text: "A fast 50mm like f1.8 would help with the bokeh. I've been using primes as they tend to get a bit sharper images.",
-    user: "I",
-    dataTime: "09 червня, 2020 | 09:14",
-  },
-  {
-    id: "58694a0f-3da1-471f-bd96-145571e29d72",
-    text: "Thank you! That was very helpful!",
-    user: "You",
-    dataTime: "09 червня, 2020 | 09:20",
-  },
-  {
-    id: "3ac68afc-c605-48d3-a4f8-fbd91aa97f62",
-    text: "A fast 50mm like f1.8 would help with the bokeh. I've been using primes as they tend to get a bit sharper images.",
-    user: "I",
-    dataTime: "09 червня, 2020 | 09:14",
-  },
-  {
-    id: "58694a0f-3da1-471f-bd96-145571e29d73",
-    text: "Thank you! That was very helpful!",
-    user: "You",
-    dataTime: "09 червня, 2020 | 09:20",
-  },
-];
+import { useState, useEffect } from "react";
+import { useUser } from "../hooks";
+import { addComment } from "../redux/posts/postsOperators";
+import { useDispatch } from "react-redux";
+import { getPosts } from "../redux/posts/postsOperators";
+import { usePost } from "../hooks";
+import { format } from "date-fns";
+import { commentListner } from "../redux/posts/postsOperators";
+import Spinner from "react-native-loading-spinner-overlay";
 
 export default CommentsScreen = ({ route }) => {
-  const [textComment, setTextComment] = useState("");
-  const { newPhoto } = route?.params || {};
+  const [commentText, setCommentText] = useState("");
+  const [hasRendered, setHasRendered] = useState(false);
+  const { user } = useUser();
+  const { post } = route.params || {};
+  const dispatch = useDispatch();
+  const { isLoading, errorGetPost, dataPost, errorAddComment } = usePost();
 
+  useEffect(() => {
+    dispatch(getPosts());
+  }, [dispatch]);
 
+  useEffect(() => {
+    if (errorGetPost || (errorAddComment && hasRendered)) {
+      this.toast.show(errorGetPost || errorAddComment, 2500);
+    } else {
+      setHasRendered(true);
+    }
+  }, [errorGetPost, errorAddComment]);
 
-const hundleComment=()=>{
-  console.log(textComment);
-  setTextComment("");
-}
+  const hundleComment = async () => {
+    const now = new Date();
+    const formattedDate = format(now, "dd MMMM, yyyy | HH:mm");
+    const { id } = post;
+    dispatch(addComment({ commentText, id, formattedDate }));
+    setCommentText("");
+    const lisntner = await commentListner(id);
+    if (lisntner === "refresh") {
+      dispatch(getPosts());
+      Keyboard.dismiss();
+    } else {
+      this.toast.show(lisntner, 2500);
+    }
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -65,60 +64,92 @@ const hundleComment=()=>{
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         keyboardVerticalOffset={100}
       >
-
-          <View style={styles.inner}>
+        <View style={styles.inner}>
+          <Spinner visible={isLoading} />
           <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-            {!newPhoto ? (
-              <View style={styles.publishedBox}></View>
-            ) : (
-              <ImageBackground
-                style={styles.image}
-                source={newPhoto}
-              ></ImageBackground>
-            )}
-        </TouchableWithoutFeedback>
-            <FlatList
-              data={DATA}
-              renderItem={({ item }) => (
-                <View
-                  style={[
-                    styles.mainCommentContainer,
-                    item.user === "I" && { flexDirection: "row-reverse" },
-                  ]}
-                >
-                  <View style={styles.userAvatar}>
+            <ImageBackground
+              style={styles.image}
+              source={{ uri: post.postsUrl }}
+            ></ImageBackground>
+          </TouchableWithoutFeedback>
+          <FlatList
+            data={dataPost[0]?.comments}
+            renderItem={({ item }) => (
+              <View
+                style={[
+                  styles.mainCommentContainer,
+                  item.user === user.displayName && {
+                    flexDirection: "row-reverse",
+                  },
+                ]}
+              >
+                {item.user === user.displayName ? (
+                  !user.photoURL ? (
+                    <View
+                      style={[styles.userAvatar, styles.userAvatarColor]}
+                    ></View>
+                  ) : (
+                    <ImageBackground
+                      source={{ uri: user.photoURL }}
+                      style={styles.userAvatar}
+                    ></ImageBackground>
+                  )
+                ) : !item.userURL ? (
+                  <View style={[styles.userAvatar, styles.userAvatarColor]}>
                     <Text>{item.user}</Text>
                   </View>
-                  <View style={styles.commentContainer}>
-                    <Text style={styles.commentText}>{item.text}</Text>
-                    <Text
-                      style={[styles.dataTimeText, item.user === "I" ? {marginRight: "auto"} :   {marginLeft: "auto"} ]}
-                    >
-                      {item.dataTime}
-                    </Text>
-                  </View>
+                ) : (
+                  <ImageBackground
+                    source={{ uri: item.userURL }}
+                    style={styles.userAvatar}
+                  >
+                    <Text>{item.user}</Text>
+                  </ImageBackground>
+                )}
+
+                <View
+                  style={[
+                    styles.commentContainer,
+                    item.user === user.displayName
+                      ? { borderTopLeftRadius: 6 }
+                      : { borderTopRightRadius: 6 },
+                  ]}
+                >
+                  <Text style={styles.commentText}>{item.text}</Text>
+                  <Text
+                    style={[
+                      styles.dataTimeText,
+                      item.user === user.displayName
+                        ? { marginRight: "auto" }
+                        : { marginLeft: "auto" },
+                    ]}
+                  >
+                    {item.dataTime}
+                  </Text>
                 </View>
-              )}
-              keyExtractor={(item) => item.id}
-              showsVerticalScrollIndicator={false}
-            ></FlatList>
+              </View>
+            )}
+            keyExtractor={(item) => item.id}
+            showsVerticalScrollIndicator={false}
+          ></FlatList>
 
-            <View style={styles.boxComment}>
-              <TextInput
-                style={styles.commentInput}
-                placeholder="Коментувати..."
-                value={textComment}
-                onChangeText={setTextComment}
-              ></TextInput>
-              <TouchableOpacity
-                style={styles.btnCommentInput}
-                onPress={()=>{hundleComment()}}
-              >
-                <AntDesign name="arrowup" size={20} color="#FFFFFF" />
-              </TouchableOpacity>
-            </View>
+          <View style={styles.boxComment}>
+            <TextInput
+              style={styles.commentInput}
+              placeholder="Коментувати..."
+              value={commentText}
+              onChangeText={setCommentText}
+            ></TextInput>
+            <TouchableOpacity
+              style={styles.btnCommentInput}
+              onPress={() => {
+                hundleComment();
+              }}
+            >
+              <AntDesign name="arrowup" size={20} color="#FFFFFF" />
+            </TouchableOpacity>
           </View>
-
+        </View>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
@@ -139,6 +170,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     justifyContent: "center",
     alignItems: "center",
+    overflow: "hidden",
     marginVertical: 32,
   },
   publishedBox: {
@@ -183,18 +215,22 @@ const styles = StyleSheet.create({
     columnGap: 16,
   },
   userAvatar: {
-    backgroundColor: "#00000008",
     width: 28,
     height: 28,
     borderRadius: 100,
     justifyContent: "center",
+    resizeMode: "cover",
+    overflow: "hidden",
     alignItems: "center",
   },
+  userAvatarColor: { backgroundColor: "#00000008" },
   commentContainer: {
     backgroundColor: "#00000008",
     padding: 16,
     marginBottom: 24,
     flex: 1,
+    borderBottomLeftRadius: 6,
+    borderBottomRightRadius: 6,
   },
   commentText: {
     color: "#212121",

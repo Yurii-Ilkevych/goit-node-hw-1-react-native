@@ -1,10 +1,10 @@
 import { View, Text, StyleSheet } from "react-native";
 
-export default HeaderText = ({Tittle}) => {
+export default HeaderText = ({ Tittle }) => {
   return (
-      <View>
-        <Text style={styles.mainTextAdditional}>{Tittle}</Text>
-      </View>
+    <View>
+      <Text style={styles.mainTextAdditional}>{Tittle}</Text>
+    </View>
   );
 };
 
@@ -17,4 +17,3 @@ const styles = StyleSheet.create({
     color: "#212121",
   },
 });
- 
