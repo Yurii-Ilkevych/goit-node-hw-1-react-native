@@ -36,7 +36,7 @@ export default RootNavigator = () => {
   }, []);
 
   useEffect(() => {
-    if (user.displayName) {
+    if (user?.displayName) {
       navigation.navigate("BottomNavigator");
     }
   }, [user]);

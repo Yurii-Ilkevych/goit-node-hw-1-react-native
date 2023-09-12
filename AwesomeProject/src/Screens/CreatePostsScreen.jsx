@@ -17,12 +17,12 @@ import * as Location from "expo-location";
 import { Camera, CameraType } from "expo-camera";
 import { useNavigation } from "@react-navigation/native";
 import { useDispatch } from "react-redux";
-import { createPost } from "../redux/posts/postsOperators";
+import { createPost, getAllPosts, postListner } from "../redux/posts/postsOperators";
 import { usePost } from "../hooks";
-//import Toast, {DURATION} from 'react-native-easy-toast'
+import { uriToBlob, comressorImage } from "../helpers/imageHelper";
+import { errorNotifications } from "../helpers/errorNotifications";
 
 export default CreatePostsScreen = () => {
-  const [type, setType] = useState(CameraType.back);
   const [localTittle, setlocalTittle] = useState("");
   const [tittlePost, setTittlePost] = useState("");
   const [hasPermission, setHasPermission] = useState(null);
@@ -34,7 +34,34 @@ export default CreatePostsScreen = () => {
   const cameraRef = useRef(null);
   const navigation = useNavigation();
   const dispatch = useDispatch();
-  const { errorCreatePost } = usePost();
+  const { errorCreatePost, allData } = usePost();
+
+  useEffect(() => {
+    if (hasRendered) {
+      dispatch(getAllPosts());
+      setPandingPablish(false);
+      navigation.navigate("PostsScreen");
+    }
+  }, [dispatch, allData]);
+
+  useEffect(() => {
+    if (errorCreatePost && hasRendered) {
+      errorNotifications();
+    } else {
+      setHasRendered(true);
+    }
+  }, [errorCreatePost]);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const { status } = await Camera.requestCameraPermissionsAsync();
+        setHasPermission(status === "granted");
+      } catch (error) {
+        errorNotifications();
+      }
+    })();
+  }, []);
 
   hundleCreatePost = async () => {
     setPandingPablish(true);
@@ -52,18 +79,23 @@ export default CreatePostsScreen = () => {
         longitude: location.coords.longitude,
       };
       const city = address[0].city;
-      const response = await fetch(newPhoto.uri);
-      const blob = await response.blob();
+      const uri = await comressorImage(newPhoto.uri, 720, 576)
+      const blob = await uriToBlob(uri);
+
       dispatch(createPost({ blob, coords, city, localTittle, tittlePost }));
       hundleAllDelete();
-      setPandingPablish(false);
-      navigation.navigate("PostsScreen");
+
+      postListner(tittlePost, () => {
+        dispatch(getAllPosts());
+      });
     } catch (error) {
       setPandingPablish(false);
       hundleAllDelete();
-      this.toast.show(error.message, 2500);
+      errorNotifications();
     }
   };
+
+
   hundleTakePhoto = async () => {
     setPendingTakePhoto(true);
     if (!hasPermission) {
@@ -76,7 +108,7 @@ export default CreatePostsScreen = () => {
     }
     if (isCameraReady) {
       try {
-        const photo = await cameraRef.current.takePictureAsync({ quality: 1 });
+        const photo = await cameraRef.current.takePictureAsync({ quality: 0 });
         setNewPhoto(photo);
       } catch (error) {
         this.toast.show(error.message, 2500);
@@ -84,26 +116,6 @@ export default CreatePostsScreen = () => {
     }
     setPendingTakePhoto(false);
   };
-
-  useEffect(() => {
-    if (errorCreatePost && hasRendered) {
-      console.log(errorCreatePost);
-      this.toast.show(errorCreatePost, 2500);
-    } else {
-      setHasRendered(true);
-    }
-  }, [errorCreatePost]);
-
-  useEffect(() => {
-    (async () => {
-      try {
-        const { status } = await Camera.requestCameraPermissionsAsync();
-        setHasPermission(status === "granted");
-      } catch (error) {
-        this.toast.show(error.message, 2500);
-      }
-    })();
-  }, []);
 
   const handleCameraReady = () => {
     setIsCameraReady(true);
@@ -132,7 +144,7 @@ export default CreatePostsScreen = () => {
                       styles.fotoboxCamera,
                       !hasPermission && styles.fotoboxCameraDeactive,
                     ]}
-                    type={type}
+                    type={CameraType.back}
                     onCameraReady={handleCameraReady}
                     ref={cameraRef}
                   >

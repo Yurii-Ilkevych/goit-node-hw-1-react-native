@@ -30,7 +30,7 @@ const uploadAvatar = async (storageRef, file) => {
     const downloadURL = await getDownloadURL(storageRef);
     return downloadURL;
   } catch (error) {
-    return error;
+    return "error";
   }
 };
 
@@ -47,6 +47,9 @@ export const registerDB = createAsyncThunk(
         photoURL = await uploadAvatar(storageRef, imageBlob);
       }
 
+      if (photoURL === "error") {
+        return thunkAPI.rejectWithValue("error");
+      }
       const userCredential = await createUserWithEmailAndPassword(
         auth,
         email,
@@ -90,6 +93,7 @@ export const loginDB = createAsyncThunk(
       const { displayName, photoURL } = credentials._tokenResponse;
       return { displayName, email, photoURL };
     } catch (error) {
+      console.log(error.message);
       return thunkAPI.rejectWithValue(error.message);
     }
   }
@@ -102,25 +106,6 @@ export const logout = createAsyncThunk("auth/logout", async (thunkAPI) => {
     return thunkAPI.rejectWithValue(error.message);
   }
 });
-
-export const updateUserProfile = createAsyncThunk(
-  "auth/update",
-  async (update, thunkAPI) => {
-    const user = auth.currentUser;
-    if (user) {
-      try {
-        await updateProfile(user, update);
-
-        const ref = doc(db, "users", user.uid);
-        await updateDoc(ref, update);
-
-        return auth.currentUser;
-      } catch (error) {
-        return thunkAPI.rejectWithValue(error.message);
-      }
-    }
-  }
-);
 
 export const deleteCarrentAvatar = createAsyncThunk(
   "auth/deleteAvatar",

@@ -5,6 +5,7 @@ import {
   query,
   where,
   getDocs,
+  getDoc,
   updateDoc,
   doc,
   arrayUnion,
@@ -42,6 +43,7 @@ export const createPost = createAsyncThunk(
         localTittle,
         tittlePost,
         comments: [],
+        liked: [],
         likes: 0,
         uid: auth.currentUser.uid,
       });
@@ -72,6 +74,43 @@ export const getPosts = createAsyncThunk("post/get", async (_, thunkAPI) => {
   }
 });
 
+export const getAllPosts = createAsyncThunk(
+  "allPost/get",
+  async (_, thunkAPI) => {
+    try {
+      const allData = [];
+      const querySnapshot = await getDocs(collection(db, "posts"));
+
+      querySnapshot.forEach((doc) => {
+        allData.push(doc.data());
+      });
+      return allData;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.message);
+    }
+  }
+);
+
+export const getCommentForCurrentPost = createAsyncThunk(
+  "get/comment",
+  async (id, thunkAPI) => {
+    try {
+      let dataComment;
+      const q = query(collection(db, "posts"), where("id", "==", id));
+
+      const querySnapshot = await getDocs(q);
+
+      querySnapshot.forEach((doc) => {
+        dataComment = doc.data().comments;
+      });
+
+      return dataComment;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.message);
+    }
+  }
+);
+
 export const addComment = createAsyncThunk(
   "post/addComment",
   async ({ commentText, id, formattedDate }, thunkAPI) => {
@@ -93,19 +132,80 @@ export const addComment = createAsyncThunk(
   }
 );
 
-export const commentListner = async (id) => {
+export const addLike = createAsyncThunk(
+  "post/addLike",
+  async ({ id, value }) => {
+    try {
+      const { uid } = auth.currentUser;
+      const collectionRef = collection(db, "posts");
+      const documentRef = doc(collectionRef, id);
+      await updateDoc(documentRef, {
+        likes: value,
+        liked: arrayUnion({
+          userId: uid,
+        }),
+      });
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.message);
+    }
+  }
+);
+
+export const removeLike = createAsyncThunk(
+  "post/removeLike",
+  async ({ id, value }) => {
+    try {
+      const { uid } = auth.currentUser;
+      const collectionRef = collection(db, "posts");
+      const documentRef = doc(collectionRef, id);
+      const docSnapshot = await getDoc(documentRef);
+      const likedArray = docSnapshot.data().liked;
+      const indexToRemove = likedArray.findIndex((item) => item.userId === uid);
+      likedArray.splice(indexToRemove, 1);
+
+      await updateDoc(documentRef, {
+        likes: value,
+        liked: likedArray,
+      });
+    } catch (error) {
+      console.log(error);
+      return thunkAPI.rejectWithValue(error.message);
+    }
+  }
+);
+
+export const listner = async (id, callback) => {
   try {
     const q = query(collection(db, "posts"), where("id", "==", id));
-    onSnapshot(q, (querySnapshot) => {
+    const unsubscribe = onSnapshot(q, (querySnapshot) => {
       querySnapshot.docChanges().forEach((change) => {
         if (change.type === "added") {
-          const newComment = change.doc.data();
-          //console.log('Новий коментар:', newComment);
+          callback();
+          unsubscribe();
         }
       });
     });
 
-    return "refresh";
+  } catch (error) {
+    return error.message;
+  }
+};
+
+export const postListner = async (tittlePost, callback) => {
+  try {
+    const q = query(collection(db, "posts"));
+    const unsubscribe = onSnapshot(q, (querySnapshot) => {
+      querySnapshot.docChanges().forEach((change) => {
+        if (
+          change.type === "added" &&
+          change.doc.data().tittlePost === tittlePost
+        ) {
+          callback();
+          unsubscribe();
+          return;
+        }
+      });
+    });
   } catch (error) {
     return error.message;
   }

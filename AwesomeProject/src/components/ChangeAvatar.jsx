@@ -12,6 +12,7 @@ import { useDispatch } from "react-redux";
 import { deleteCarrentAvatar } from "../redux/authUser/authOperators";
 import { addCarrentAvatar } from "../redux/authUser/authOperators";
 import Spinner from "react-native-loading-spinner-overlay";
+import { uriToBlob, comressorImage } from "../helpers/imageHelper";
 
 export const ChangeAvatar = () => {
   const [image, setImage] = useState(null);
@@ -44,12 +45,22 @@ export const ChangeAvatar = () => {
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
       aspect: [4, 3],
-      quality: 0.5,
     });
+
     if (!result.canceled) {
+      const uri = await comressorImage(result.assets[0].uri, 600, 600)
+      const blob = await uriToBlob(uri);
+      const fileSizeInBytes = blob.size;
+      if (fileSizeInBytes / 1024 > 800) {
+        this.toast.show(
+          `The selected photo after compression is ${(
+            fileSizeInBytes / 1024
+          ).toFixed(1)} kb, but must not exceed 250 kb`,
+          4000
+        );
+        return;
+      }
       setImage(result.assets[0].uri);
-      const response = await fetch(result.assets[0].uri);
-      const blob = await response.blob();
       dispach(addCarrentAvatar(blob));
     }
   };

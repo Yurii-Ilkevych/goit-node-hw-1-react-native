@@ -17,19 +17,21 @@ import {
 } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import HeaderBtnLogoutPosts from "../components/HeaderBtnLogoutPosts";
-import Spinner from "react-native-loading-spinner-overlay";
 import { useUser } from "../hooks";
 import { usePost } from "../hooks";
 import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { ChangeAvatar } from "../components/ChangeAvatar";
-import { getPosts } from "../redux/posts/postsOperators";
+import { errorNotifications } from "../helpers/errorNotifications";
+import { getPosts, addLike, removeLike, listner } from "../redux/posts/postsOperators";
+import { auth } from "../redux/config";
 
 export default ProfileScreen = () => {
   const [refreshing, setRefreshing] = useState(false);
+  const [hasRendered, setHasRendered] = useState(false);
   const navigation = useNavigation();
   const { user } = useUser();
-  const { isLoading, errorGetPost, dataPost } = usePost();
+  const { errorAddLike, errorGetPost, dataPost } = usePost();
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -37,8 +39,10 @@ export default ProfileScreen = () => {
   }, [dispatch]);
 
   useEffect(() => {
-    if (errorGetPost) {
-      this.toast.show(errorGetPost, 2500);
+    if ((errorGetPost || errorAddLike) && hasRendered) {
+      errorNotifications();
+    } else {
+      setHasRendered(true);
     }
   }, [errorGetPost]);
 
@@ -48,15 +52,35 @@ export default ProfileScreen = () => {
     setRefreshing(false);
   };
 
+  const hundleAddLike = async (id, likes) => {
+    const value = (likes += 1);
+    dispatch(addLike({ id, value }));
+
+
+    listner(id,()=>{
+      dispatch(getPosts());
+    })
+  };
+
+
+
+  const hundleRemoveLike = async (id, likes) => {
+    const value = (likes -= 1);
+    dispatch(removeLike({ id, value }));
+
+    listner(id,()=>{
+      dispatch(getPosts());
+    })
+  };
+
+
   return (
     <SharedLayout>
       <SafeAreaView style={styles.container}>
         <View style={styles.innerContainer}>
-          <Spinner visible={isLoading} />
           <View style={styles.profileBox}>
             <ChangeAvatar />
             <HeaderBtnLogoutPosts style={styles.iconBtn} />
-            <Text style={styles.userText}>{user.displayName}</Text>
 
             <FlatList
               refreshControl={
@@ -88,19 +112,60 @@ export default ProfileScreen = () => {
                           <EvilIcons name="comment" size={24} color="#BDBDBD" />
                         )}
                       </TouchableOpacity>
-                      <Text style={styles.counter}>{item.comments.length}</Text>
-                      <TouchableOpacity style={styles.icon}>
-                        <AntDesign
-                          name="like2"
-                          size={24}
-                          color={
-                            item.likes > 1
-                              ? (color = "#FF6C00")
-                              : (color = "#BDBDBD")
-                          }
-                        />
-                      </TouchableOpacity>
-                      <Text style={styles.counter}>{item.likes}</Text>
+                      <Text
+                        style={[
+                          styles.counter,
+                          item.comments.length < 1 && { color: "#BDBDBD" },
+                        ]}
+                      >
+                        {item.comments.length}
+                      </Text>
+
+                      {item.liked.some(
+                        (likedItem) => likedItem.userId === auth.currentUser.uid
+                      ) ? (
+                        <>
+                          <TouchableOpacity
+                            style={styles.icon}
+                            onPress={() => hundleRemoveLike(item.id, item.likes)}
+                          >
+                            <AntDesign
+                              name="like2"
+                              size={24}
+                              color={item.likes > 0 ? "#FF6C00" : "#BDBDBD"}
+                            />
+                          </TouchableOpacity>
+                          <Text
+                            style={[
+                              styles.counter,
+                              item.likes < 1 && { color: "#BDBDBD" },
+                            ]}
+                          >
+                            {item.likes}
+                          </Text>
+                        </>
+                      ) : (
+                        <>
+                          <TouchableOpacity
+                            style={styles.icon}
+                            onPress={() => hundleAddLike(item.id, item.likes)}
+                          >
+                            <AntDesign
+                              name="like2"
+                              size={24}
+                              color={item.likes > 0 ? "#FF6C00" : "#BDBDBD"}
+                            />
+                          </TouchableOpacity>
+                          <Text
+                            style={[
+                              styles.counter,
+                              item.likes < 1 && { color: "#BDBDBD" },
+                            ]}
+                          >
+                            {item.likes}
+                          </Text>
+                        </>
+                      )}
                     </View>
                     <TouchableOpacity
                       style={styles.socialBoxEnd}
@@ -122,6 +187,9 @@ export default ProfileScreen = () => {
                   </View>
                 </View>
               )}
+              ListHeaderComponent={
+                <Text style={styles.userText}>{user.displayName}</Text>
+              }
               ListFooterComponent={<View style={styles.publishedFooter}></View>}
               showsVerticalScrollIndicator={false}
             ></FlatList>
@@ -140,7 +208,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "flex-end",
     position: "relative",
-    marginTop: 231,
+    marginTop: 160,
   },
   profileBox: {
     backgroundColor: "#FFFFFF",

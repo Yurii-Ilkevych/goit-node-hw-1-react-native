@@ -14,13 +14,11 @@ import {
 import { AntDesign } from "@expo/vector-icons";
 import { useState, useEffect } from "react";
 import { useUser } from "../hooks";
-import { addComment } from "../redux/posts/postsOperators";
 import { useDispatch } from "react-redux";
-import { getPosts } from "../redux/posts/postsOperators";
+import { getPosts, getAllPosts, getCommentForCurrentPost, listner, addComment } from "../redux/posts/postsOperators";
 import { usePost } from "../hooks";
 import { format } from "date-fns";
-import { commentListner } from "../redux/posts/postsOperators";
-import Spinner from "react-native-loading-spinner-overlay";
+import { errorNotifications } from "../helpers/errorNotifications";
 
 export default CommentsScreen = ({ route }) => {
   const [commentText, setCommentText] = useState("");
@@ -28,19 +26,20 @@ export default CommentsScreen = ({ route }) => {
   const { user } = useUser();
   const { post } = route.params || {};
   const dispatch = useDispatch();
-  const { isLoading, errorGetPost, dataPost, errorAddComment } = usePost();
+  const { errorAddComment, errorGetCommentForCurrentPost, dataComment } = usePost();
+  const reversedDataComment = [...dataComment].reverse();
 
   useEffect(() => {
-    dispatch(getPosts());
+    dispatch(getCommentForCurrentPost(post.id))
   }, [dispatch]);
 
   useEffect(() => {
-    if (errorGetPost || (errorAddComment && hasRendered)) {
-      this.toast.show(errorGetPost || errorAddComment, 2500);
+    if ((errorGetCommentForCurrentPost || errorAddComment) && hasRendered) {
+      errorNotifications();
     } else {
       setHasRendered(true);
     }
-  }, [errorGetPost, errorAddComment]);
+  }, [errorGetCommentForCurrentPost, errorAddComment]);
 
   const hundleComment = async () => {
     const now = new Date();
@@ -48,13 +47,14 @@ export default CommentsScreen = ({ route }) => {
     const { id } = post;
     dispatch(addComment({ commentText, id, formattedDate }));
     setCommentText("");
-    const lisntner = await commentListner(id);
-    if (lisntner === "refresh") {
-      dispatch(getPosts());
-      Keyboard.dismiss();
-    } else {
-      this.toast.show(lisntner, 2500);
-    }
+    
+    listner(id,()=>{
+      dispatch(getCommentForCurrentPost(post.id));
+      dispatch(getAllPosts())
+      dispatch(getPosts())
+    })
+    Keyboard.dismiss();
+
   };
 
   return (
@@ -65,7 +65,6 @@ export default CommentsScreen = ({ route }) => {
         keyboardVerticalOffset={100}
       >
         <View style={styles.inner}>
-          <Spinner visible={isLoading} />
           <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
             <ImageBackground
               style={styles.image}
@@ -73,13 +72,14 @@ export default CommentsScreen = ({ route }) => {
             ></ImageBackground>
           </TouchableWithoutFeedback>
           <FlatList
-            data={dataPost[0]?.comments}
+            data={reversedDataComment}
+            keyExtractor={(item) => item.id}
             renderItem={({ item }) => (
               <View
                 style={[
                   styles.mainCommentContainer,
                   item.user === user.displayName && {
-                    flexDirection: "row-reverse",
+                    flexDirection: "row-reverse", 
                   },
                 ]}
               >
@@ -96,14 +96,12 @@ export default CommentsScreen = ({ route }) => {
                   )
                 ) : !item.userURL ? (
                   <View style={[styles.userAvatar, styles.userAvatarColor]}>
-                    <Text>{item.user}</Text>
                   </View>
                 ) : (
                   <ImageBackground
                     source={{ uri: item.userURL }}
                     style={styles.userAvatar}
                   >
-                    <Text>{item.user}</Text>
                   </ImageBackground>
                 )}
 
@@ -129,7 +127,6 @@ export default CommentsScreen = ({ route }) => {
                 </View>
               </View>
             )}
-            keyExtractor={(item) => item.id}
             showsVerticalScrollIndicator={false}
           ></FlatList>
 

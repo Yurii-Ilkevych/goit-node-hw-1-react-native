@@ -3,7 +3,6 @@ import { createSlice } from "@reduxjs/toolkit";
 import {
   registerDB,
   loginDB,
-  updateUserProfile,
   logout,
   updateUserData,
   deleteCarrentAvatar,
@@ -65,20 +64,6 @@ const authSlice = createSlice({
       })
       .addCase(logout.rejected, (state) => {
         state.isLoading = false;
-      });
-
-    builder
-      .addCase(updateUserProfile.pending, (state) => {
-        state.isLoading = true;
-        state.erroUpdate = null;
-      })
-      .addCase(updateUserProfile.fulfilled, (state) => {
-        state.isLoading = false;
-        state.erroUpdate = null;
-      })
-      .addCase(updateUserProfile.rejected, (state, action) => {
-        state.isLoading = false;
-        state.erroUpdate = action.payload;
       });
 
     builder

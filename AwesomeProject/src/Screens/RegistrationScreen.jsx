@@ -18,6 +18,7 @@ import { useUser } from "../hooks/useUser";
 import { useEffect } from "react";
 import Spinner from "react-native-loading-spinner-overlay";
 import { UploadAvatar } from "../components/UploadAvatar";
+import { errorNotifications } from "../helpers/errorNotifications";
 
 export default RegistrationScreen = () => {
   const [isFocusInpuLogint, setIsFocusInputLogin] = useState(false);
@@ -35,21 +36,37 @@ export default RegistrationScreen = () => {
 
   const onRegister = () => {
     const login = loginValue.trim();
+    const research = hundleResearchForm()
+    if(login.length=== 0|| email.length=== 0|| password=== 0){
+      this.toast.show("All fields must be filled", 2500);
+      return
+    }
+
+if(research !== 200){
+  this.toast.show(research, 2500);
+  return
+}
     dispatch(registerDB({ login, email, password, imageBlob }));
-    hundleResetForm();
-  };
-  const hundleResetForm = () => {
-    setlogin("");
-    setEmail("");
-    setPassword("");
   };
 
+
+const hundleResearchForm = ()=>{
+  const emailRegex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
+  if(loginValue.trim().length < 3){
+    return "Login must contain min 3 symbol"
+  }else if(!emailRegex.test(email)){
+    return "Email is not valid"
+  }else if(password.length < 3){
+    return "Password must contain min 6 symbol"
+  }
+  return 200
+}
   const hundleGetAvatar = (imageBlob) => {
     setImageBlob(imageBlob);
   };
   useEffect(() => {
     if (errorRegister && hasRendered) {
-      this.toast.show(errorRegister, 2500);
+      errorNotifications(errorRegister)
     } else {
       setHasRendered(true);
     }

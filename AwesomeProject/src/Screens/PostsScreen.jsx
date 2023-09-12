@@ -8,43 +8,74 @@ import {
   FlatList,
   RefreshControl,
 } from "react-native";
-import { EvilIcons, FontAwesome, SimpleLineIcons } from "@expo/vector-icons";
+import {
+  EvilIcons,
+  FontAwesome,
+  SimpleLineIcons,
+  AntDesign,
+} from "@expo/vector-icons";
 import { useEffect, useState } from "react";
 import { useNavigation } from "@react-navigation/native";
 import { useUser } from "../hooks";
 import { useDispatch } from "react-redux";
-import { getPosts } from "../redux/posts/postsOperators";
+import {
+  getAllPosts,
+  addLike,
+  removeLike,
+  listner,
+} from "../redux/posts/postsOperators";
 import { usePost } from "../hooks";
-import Spinner from "react-native-loading-spinner-overlay";
+import { errorNotifications } from "../helpers/errorNotifications";
+import { auth } from "../redux/config";
 
 export default PostsScreen = () => {
   const [refreshing, setRefreshing] = useState(false);
+  const [hasRendered, setHasRendered] = useState(false);
   const navigation = useNavigation();
   const { user } = useUser();
   const dispatch = useDispatch();
-  const { isLoading, errorGetPost, dataPost } = usePost();
+  const { errorAddLike, errorGetAllPost, allData } = usePost();
 
   useEffect(() => {
-    dispatch(getPosts());
+    dispatch(getAllPosts());
   }, [dispatch]);
 
   useEffect(() => {
-    if (errorGetPost) {
-      this.toast.show(errorGetPost, 2500);
+    if ((errorGetAllPost || errorAddLike) && hasRendered) {
+      errorNotifications();
+    } else {
+      setHasRendered(true);
     }
-  }, [errorGetPost]);
+  }, [errorGetAllPost]);
 
   const fetchData = async () => {
     setRefreshing(true);
-    dispatch(getPosts());
+    dispatch(getAllPosts());
     setRefreshing(false);
+  };
+
+  const hundleAddLike = async (id, likes) => {
+    const value = (likes += 1);
+    dispatch(addLike({ id, value }));
+
+    listner(id, () => {
+      dispatch(getAllPosts());
+    });
+  };
+
+  const hundleRemoveLike = async (id, likes) => {
+    const value = (likes -= 1);
+    dispatch(removeLike({ id, value }));
+
+    listner(id, () => {
+      dispatch(getAllPosts());
+    });
   };
 
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.innerContainer}>
         <View style={styles.userContainer}>
-          <Spinner visible={isLoading} />
           {user.photoURL ? (
             <ImageBackground
               source={{ uri: user.photoURL }}
@@ -64,7 +95,7 @@ export default PostsScreen = () => {
           refreshControl={
             <RefreshControl refreshing={refreshing} onRefresh={fetchData} />
           }
-          data={dataPost}
+          data={allData}
           keyExtractor={(item) => item.id}
           showsVerticalScrollIndicator={false}
           renderItem={({ item }) => (
@@ -76,18 +107,18 @@ export default PostsScreen = () => {
 
               <Text style={styles.tittlePublished}>{item.tittlePost}</Text>
               <View style={styles.socialBox}>
-                <TouchableOpacity
-                  onPress={() => {
-                    navigation.navigate("CommentsScreen", { post: item });
-                  }}
-                  style={styles.socialBoxStart}
-                >
-                  {item.comments.length > 0 ? (
-                    <FontAwesome name="comment" size={24} color="#FF6C00" />
-                  ) : (
-                    <EvilIcons name="comment" size={24} color="#BDBDBD" />
-                  )}
-
+                <View style={styles.socialBoxStart}>
+                  <TouchableOpacity
+                    onPress={() => {
+                      navigation.navigate("CommentsScreen", { post: item });
+                    }}
+                  >
+                    {item.comments.length > 0 ? (
+                      <FontAwesome name="comment" size={24} color="#FF6C00" />
+                    ) : (
+                      <EvilIcons name="comment" size={24} color="#BDBDBD" />
+                    )}
+                  </TouchableOpacity>
                   <Text
                     style={[
                       styles.counter,
@@ -96,7 +127,54 @@ export default PostsScreen = () => {
                   >
                     {item.comments.length}
                   </Text>
-                </TouchableOpacity>
+
+                  {item.liked.some(
+                    (likedItem) => likedItem.userId === auth.currentUser.uid
+                  ) ? (
+                    <>
+                      <TouchableOpacity
+                        style={styles.icon}
+                        onPress={() => hundleRemoveLike(item.id, item.likes)}
+                      >
+                        <AntDesign
+                          name="like2"
+                          size={24}
+                          color={item.likes > 0 ? "#FF6C00" : "#BDBDBD"}
+                        />
+                      </TouchableOpacity>
+                      <Text
+                        style={[
+                          styles.counter,
+                          item.likes < 1 && { color: "#BDBDBD" },
+                        ]}
+                      >
+                        {item.likes}
+                      </Text>
+                    </>
+                  ) : (
+                    <>
+                      <TouchableOpacity
+                        style={styles.icon}
+                        onPress={() => hundleAddLike(item.id, item.likes)}
+                      >
+                        <AntDesign
+                          name="like2"
+                          size={24}
+                          color={item.likes > 0 ? "#FF6C00" : "#BDBDBD"}
+                        />
+                      </TouchableOpacity>
+                      <Text
+                        style={[
+                          styles.counter,
+                          item.likes < 1 && { color: "#BDBDBD" },
+                        ]}
+                      >
+                        {item.likes}
+                      </Text>
+                    </>
+                  )}
+                </View>
+
                 <TouchableOpacity
                   style={styles.socialBoxEnd}
                   onPress={() => {
@@ -115,7 +193,14 @@ export default PostsScreen = () => {
               </View>
             </View>
           )}
-          ListFooterComponent={<View style={styles.publishedFooter}></View>}
+          ListFooterComponent={
+            <View
+              style={[
+                styles.publishedFooter,
+                allData.length === 0 && { padding: "100%" },
+              ]}
+            ></View>
+          }
         ></FlatList>
       </View>
     </SafeAreaView>

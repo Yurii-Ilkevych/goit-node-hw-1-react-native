@@ -17,6 +17,7 @@ import { loginDB } from "../redux/authUser/authOperators";
 import { useUser } from "../hooks/useUser";
 import { useEffect } from "react";
 import Spinner from "react-native-loading-spinner-overlay";
+import { errorNotifications } from "../helpers/errorNotifications";
 
 export default LoginScreen = () => {
   const [isFocusInputEmail, setIsFocusInputEmail] = useState(false);
@@ -24,23 +25,40 @@ export default LoginScreen = () => {
   const [isShowPassword, setIsShowPassword] = useState(true);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [textError, setTextError] = useState(null);
   const navigation = useNavigation();
   const dispatch = useDispatch();
   const { isLoading, errorLogin } = useUser();
 
   const onLogin = () => {
+
+    if(email.length=== 0|| password=== 0){
+      this.toast.show("All fields must be filled", 2500);
+      return
+    }
+
+    const research = hundleResearchForm()
+    if(research !== 200){
+      this.toast.show(research, 2500);
+      return
+    }
+
     dispatch(loginDB({ email, password }));
-    hundleResetForm();
   };
-  const hundleResetForm = () => {
-    setEmail("");
-    setPassword("");
-  };
+
+
+  const hundleResearchForm = ()=>{
+    const emailRegex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
+    if(!emailRegex.test(email)){
+      return "Email is not valid"
+    }else if(password.length < 3){
+      return "Password must contain min 6 symbol"
+    }
+    return 200
+  }
 
   useEffect(() => {
     if (errorLogin) {
-      this.toast.show(errorLogin, 2500);
+      errorNotifications(errorLogin)
     }
   }, [errorLogin]);
 
