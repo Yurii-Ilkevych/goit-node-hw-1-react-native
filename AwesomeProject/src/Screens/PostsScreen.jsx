@@ -96,8 +96,8 @@ export default PostsScreen = () => {
             <RefreshControl refreshing={refreshing} onRefresh={fetchData} />
           }
           data={allData}
-          keyExtractor={(item) => item.id}
-          showsVerticalScrollIndicator={false}
+          keyExtractor={(item) => item.id ? item.id.toString() : ''}
+          showsVerticalScrollIndicator={false} 
           renderItem={({ item }) => (
             <View style={styles.publishedContainer}>
               <ImageBackground
@@ -113,7 +113,8 @@ export default PostsScreen = () => {
                       navigation.navigate("CommentsScreen", { post: item });
                     }}
                   >
-                    {item.comments.length > 0 ? (
+                    {item.comments.some(
+                        (commentsItem) => commentsItem.userId === auth.currentUser.uid) ? (
                       <FontAwesome name="comment" size={24} color="#FF6C00" />
                     ) : (
                       <EvilIcons name="comment" size={24} color="#BDBDBD" />
@@ -139,7 +140,7 @@ export default PostsScreen = () => {
                         <AntDesign
                           name="like2"
                           size={24}
-                          color={item.likes > 0 ? "#FF6C00" : "#BDBDBD"}
+                          color={"#FF6C00"}
                         />
                       </TouchableOpacity>
                       <Text
@@ -160,7 +161,7 @@ export default PostsScreen = () => {
                         <AntDesign
                           name="like2"
                           size={24}
-                          color={item.likes > 0 ? "#FF6C00" : "#BDBDBD"}
+                          color={"#BDBDBD"}
                         />
                       </TouchableOpacity>
                       <Text

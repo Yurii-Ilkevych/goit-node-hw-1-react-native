@@ -74,6 +74,7 @@ export default ProfileScreen = () => {
   };
 
 
+
   return (
     <SharedLayout>
       <SafeAreaView style={styles.container}>
@@ -102,7 +103,8 @@ export default ProfileScreen = () => {
                           navigation.navigate("CommentsScreen", { post: item });
                         }}
                       >
-                        {item.comments.length > 0 ? (
+                        { item.comments.some(
+                        (commentsItem) => commentsItem.userId === auth.currentUser.uid) ? (
                           <FontAwesome
                             name="comment"
                             size={24}
@@ -132,7 +134,7 @@ export default ProfileScreen = () => {
                             <AntDesign
                               name="like2"
                               size={24}
-                              color={item.likes > 0 ? "#FF6C00" : "#BDBDBD"}
+                              color={"#FF6C00"}
                             />
                           </TouchableOpacity>
                           <Text
@@ -153,7 +155,7 @@ export default ProfileScreen = () => {
                             <AntDesign
                               name="like2"
                               size={24}
-                              color={item.likes > 0 ? "#FF6C00" : "#BDBDBD"}
+                              color={"#BDBDBD"}
                             />
                           </TouchableOpacity>
                           <Text

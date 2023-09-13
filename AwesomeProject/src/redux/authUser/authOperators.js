@@ -90,10 +90,10 @@ export const loginDB = createAsyncThunk(
         email,
         password
       );
-      const { displayName, photoURL } = credentials._tokenResponse;
+      const { displayName, profilePicture } = credentials._tokenResponse;
+      const photoURL = profilePicture
       return { displayName, email, photoURL };
     } catch (error) {
-      console.log(error.message);
       return thunkAPI.rejectWithValue(error.message);
     }
   }

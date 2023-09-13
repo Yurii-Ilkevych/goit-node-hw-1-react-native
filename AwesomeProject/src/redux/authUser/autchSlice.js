@@ -46,9 +46,10 @@ const authSlice = createSlice({
       .addCase(loginDB.fulfilled, (state, action) => {
         state.isLoading = false;
         state.errorLogin = null;
+        state.user = action.payload;
         state.errorRegister = null;
         state.errorDeleteAvatar = null;
-        (state.errorAddAvatar = null), (state.user = action.payload);
+        state.errorAddAvatar = null;
       })
       .addCase(loginDB.rejected, (state, action) => {
         state.isLoading = false;

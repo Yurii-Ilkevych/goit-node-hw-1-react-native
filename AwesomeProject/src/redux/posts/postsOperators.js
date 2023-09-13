@@ -121,7 +121,7 @@ export const addComment = createAsyncThunk(
         comments: arrayUnion({
           id: nanoid(14),
           text: commentText,
-          user: auth.currentUser.displayName,
+          userId: auth.currentUser.uid,
           userURL: auth.currentUser.photoURL,
           dataTime: formattedDate,
         }),
@@ -135,6 +135,7 @@ export const addComment = createAsyncThunk(
 export const addLike = createAsyncThunk(
   "post/addLike",
   async ({ id, value }) => {
+    console.log(id)
     try {
       const { uid } = auth.currentUser;
       const collectionRef = collection(db, "posts");

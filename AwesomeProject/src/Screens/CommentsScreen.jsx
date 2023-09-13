@@ -19,6 +19,7 @@ import { getPosts, getAllPosts, getCommentForCurrentPost, listner, addComment } 
 import { usePost } from "../hooks";
 import { format } from "date-fns";
 import { errorNotifications } from "../helpers/errorNotifications";
+import { auth } from "../redux/config";
 
 export default CommentsScreen = ({ route }) => {
   const [commentText, setCommentText] = useState("");
@@ -47,7 +48,7 @@ export default CommentsScreen = ({ route }) => {
     const { id } = post;
     dispatch(addComment({ commentText, id, formattedDate }));
     setCommentText("");
-    
+
     listner(id,()=>{
       dispatch(getCommentForCurrentPost(post.id));
       dispatch(getAllPosts())
@@ -78,12 +79,12 @@ export default CommentsScreen = ({ route }) => {
               <View
                 style={[
                   styles.mainCommentContainer,
-                  item.user === user.displayName && {
+                  item.userId === auth.currentUser.uid && {
                     flexDirection: "row-reverse", 
                   },
                 ]}
               >
-                {item.user === user.displayName ? (
+                {item.userId === auth.currentUser.uid ? (
                   !user.photoURL ? (
                     <View
                       style={[styles.userAvatar, styles.userAvatarColor]}
@@ -108,7 +109,7 @@ export default CommentsScreen = ({ route }) => {
                 <View
                   style={[
                     styles.commentContainer,
-                    item.user === user.displayName
+                    item.userId === auth.currentUser.uid
                       ? { borderTopLeftRadius: 6 }
                       : { borderTopRightRadius: 6 },
                   ]}
@@ -117,7 +118,7 @@ export default CommentsScreen = ({ route }) => {
                   <Text
                     style={[
                       styles.dataTimeText,
-                      item.user === user.displayName
+                      item.userId === auth.currentUser.uid
                         ? { marginRight: "auto" }
                         : { marginLeft: "auto" },
                     ]}
