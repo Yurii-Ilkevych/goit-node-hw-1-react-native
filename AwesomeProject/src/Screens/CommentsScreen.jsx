@@ -15,7 +15,13 @@ import { AntDesign } from "@expo/vector-icons";
 import { useState, useEffect } from "react";
 import { useUser } from "../hooks";
 import { useDispatch } from "react-redux";
-import { getPosts, getAllPosts, getCommentForCurrentPost, listner, addComment } from "../redux/posts/postsOperators";
+import {
+  getPosts,
+  getAllPosts,
+  getCommentForCurrentPost,
+  listner,
+  addComment,
+} from "../redux/posts/postsOperators";
 import { usePost } from "../hooks";
 import { format } from "date-fns";
 import { errorNotifications } from "../helpers/errorNotifications";
@@ -27,11 +33,12 @@ export default CommentsScreen = ({ route }) => {
   const { user } = useUser();
   const { post } = route.params || {};
   const dispatch = useDispatch();
-  const { errorAddComment, errorGetCommentForCurrentPost, dataComment } = usePost();
+  const { errorAddComment, errorGetCommentForCurrentPost, dataComment } =
+    usePost();
   const reversedDataComment = [...dataComment].reverse();
 
   useEffect(() => {
-    dispatch(getCommentForCurrentPost(post.id))
+    dispatch(getCommentForCurrentPost(post.id));
   }, [dispatch]);
 
   useEffect(() => {
@@ -49,13 +56,12 @@ export default CommentsScreen = ({ route }) => {
     dispatch(addComment({ commentText, id, formattedDate }));
     setCommentText("");
 
-    listner(id,()=>{
+    listner(id, () => {
       dispatch(getCommentForCurrentPost(post.id));
-      dispatch(getAllPosts())
-      dispatch(getPosts())
-    })
+      dispatch(getAllPosts());
+      dispatch(getPosts());
+    });
     Keyboard.dismiss();
-
   };
 
   return (
@@ -80,7 +86,7 @@ export default CommentsScreen = ({ route }) => {
                 style={[
                   styles.mainCommentContainer,
                   item.userId === auth.currentUser.uid && {
-                    flexDirection: "row-reverse", 
+                    flexDirection: "row-reverse",
                   },
                 ]}
               >
@@ -96,14 +102,14 @@ export default CommentsScreen = ({ route }) => {
                     ></ImageBackground>
                   )
                 ) : !item.userURL ? (
-                  <View style={[styles.userAvatar, styles.userAvatarColor]}>
-                  </View>
+                  <View
+                    style={[styles.userAvatar, styles.userAvatarColor]}
+                  ></View>
                 ) : (
                   <ImageBackground
                     source={{ uri: item.userURL }}
                     style={styles.userAvatar}
-                  >
-                  </ImageBackground>
+                  ></ImageBackground>
                 )}
 
                 <View

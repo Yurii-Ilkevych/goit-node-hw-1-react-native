@@ -96,8 +96,8 @@ export default PostsScreen = () => {
             <RefreshControl refreshing={refreshing} onRefresh={fetchData} />
           }
           data={allData}
-          keyExtractor={(item) => item.id ? item.id.toString() : ''}
-          showsVerticalScrollIndicator={false} 
+          keyExtractor={(item) => (item.id ? item.id.toString() : "")}
+          showsVerticalScrollIndicator={false}
           renderItem={({ item }) => (
             <View style={styles.publishedContainer}>
               <ImageBackground
@@ -114,7 +114,9 @@ export default PostsScreen = () => {
                     }}
                   >
                     {item.comments.some(
-                        (commentsItem) => commentsItem.userId === auth.currentUser.uid) ? (
+                      (commentsItem) =>
+                        commentsItem.userId === auth.currentUser.uid
+                    ) ? (
                       <FontAwesome name="comment" size={24} color="#FF6C00" />
                     ) : (
                       <EvilIcons name="comment" size={24} color="#BDBDBD" />
@@ -137,11 +139,7 @@ export default PostsScreen = () => {
                         style={styles.icon}
                         onPress={() => hundleRemoveLike(item.id, item.likes)}
                       >
-                        <AntDesign
-                          name="like2"
-                          size={24}
-                          color={"#FF6C00"}
-                        />
+                        <AntDesign name="like2" size={24} color={"#FF6C00"} />
                       </TouchableOpacity>
                       <Text
                         style={[
@@ -158,11 +156,7 @@ export default PostsScreen = () => {
                         style={styles.icon}
                         onPress={() => hundleAddLike(item.id, item.likes)}
                       >
-                        <AntDesign
-                          name="like2"
-                          size={24}
-                          color={"#BDBDBD"}
-                        />
+                        <AntDesign name="like2" size={24} color={"#BDBDBD"} />
                       </TouchableOpacity>
                       <Text
                         style={[

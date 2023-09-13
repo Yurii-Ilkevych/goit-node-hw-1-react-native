@@ -135,7 +135,6 @@ export const addComment = createAsyncThunk(
 export const addLike = createAsyncThunk(
   "post/addLike",
   async ({ id, value }) => {
-    console.log(id)
     try {
       const { uid } = auth.currentUser;
       const collectionRef = collection(db, "posts");

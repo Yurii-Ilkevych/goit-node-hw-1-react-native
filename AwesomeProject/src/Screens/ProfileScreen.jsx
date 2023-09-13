@@ -23,7 +23,12 @@ import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { ChangeAvatar } from "../components/ChangeAvatar";
 import { errorNotifications } from "../helpers/errorNotifications";
-import { getPosts, addLike, removeLike, listner } from "../redux/posts/postsOperators";
+import {
+  getPosts,
+  addLike,
+  removeLike,
+  listner,
+} from "../redux/posts/postsOperators";
 import { auth } from "../redux/config";
 
 export default ProfileScreen = () => {
@@ -56,24 +61,19 @@ export default ProfileScreen = () => {
     const value = (likes += 1);
     dispatch(addLike({ id, value }));
 
-
-    listner(id,()=>{
+    listner(id, () => {
       dispatch(getPosts());
-    })
+    });
   };
-
-
 
   const hundleRemoveLike = async (id, likes) => {
     const value = (likes -= 1);
     dispatch(removeLike({ id, value }));
 
-    listner(id,()=>{
+    listner(id, () => {
       dispatch(getPosts());
-    })
+    });
   };
-
-
 
   return (
     <SharedLayout>
@@ -103,8 +103,10 @@ export default ProfileScreen = () => {
                           navigation.navigate("CommentsScreen", { post: item });
                         }}
                       >
-                        { item.comments.some(
-                        (commentsItem) => commentsItem.userId === auth.currentUser.uid) ? (
+                        {item.comments.some(
+                          (commentsItem) =>
+                            commentsItem.userId === auth.currentUser.uid
+                        ) ? (
                           <FontAwesome
                             name="comment"
                             size={24}
@@ -129,7 +131,9 @@ export default ProfileScreen = () => {
                         <>
                           <TouchableOpacity
                             style={styles.icon}
-                            onPress={() => hundleRemoveLike(item.id, item.likes)}
+                            onPress={() =>
+                              hundleRemoveLike(item.id, item.likes)
+                            }
                           >
                             <AntDesign
                               name="like2"
