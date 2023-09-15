@@ -29,8 +29,8 @@
         "googleMapsApiKey": "AIzaSyB63PkRUMLBJUvaOihqucYTWNHo2NRq3wE"
       }
     },
-    "android":{
-  "package" : "com.company.myawesomeproject",
+    "android": {
+      "package": "com.company.myawesomeproject",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
@@ -40,10 +40,18 @@
           "apiKey": "AIzaSyB63PkRUMLBJUvaOihqucYTWNHo2NRq3wE"
         }
       },
-      "softwareKeyboardLayoutMode": "pan"
+      "softwareKeyboardLayoutMode": "pan",
+      "permissions": [
+        "android.permission.RECORD_AUDIO"
+      ]
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "66409f58-2c07-410c-aaa2-7e3affc3313e"
+      }
     }
   }
 }
